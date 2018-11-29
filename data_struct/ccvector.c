@@ -1,6 +1,43 @@
 #include "ccvector.h"
 #include "common.h"
 
+static int VecResize(CC_VECTOR *Vector, int Up)
+{
+	int new_size;
+
+	if (Up)
+	{
+		if (0 == Vector->Size) 
+		{
+			new_size = 1;
+		} 
+		else
+		{
+			new_size = Vector->Size * 2;
+		}
+	}
+	else
+	{
+		if (1 == Vector->Size)
+		{
+			return VecClear(Vector);
+		}
+		new_size = Vector->Size / 2;
+	}
+
+	int *arr = (int *)realloc(Vector->Array, sizeof(int) * new_size);
+
+	if (NULL == arr)
+	{
+		return -1;
+	}
+
+	Vector->Array = arr;
+	Vector->Size = new_size;
+
+	return 0;
+}
+
 int VecCreate(CC_VECTOR **Vector)
 {
     if (NULL == Vector)
@@ -15,16 +52,9 @@ int VecCreate(CC_VECTOR **Vector)
         return -1;
     }
 
-    vec->Array = (int *)malloc(sizeof(int));
-
-    if (NULL == vec->Array)
-    {
-        free(vec);
-        return -1;
-    }
-
+	vec->Array = NULL;
     vec->Count = 0;
-    vec->Size = 1;
+    vec->Size = 0;
 
     *Vector = vec;
 
@@ -57,14 +87,10 @@ int VecInsertTail(CC_VECTOR *Vector, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-        int *arr = (int *)realloc(Vector->Array, sizeof(int) * Vector->Size * 2);
-
-        if (NULL == arr)
-        {
-            return -1;
-        }
-
-        Vector->Array = arr;
+		if (-1 == VecResize(Vector, 1))
+		{
+			return -1;
+		}
     }
 
     Vector->Array[Vector->Count++] = Value;
@@ -80,14 +106,10 @@ int VecInsertHead(CC_VECTOR *Vector, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-        int *arr = (int *)realloc(Vector->Array, sizeof(int) * Vector->Size * 2);
-
-        if (NULL == arr)
-        {
-            return -1;
-        }
-
-        Vector->Array = arr;
+		if (-1 == VecResize(Vector, 1))
+		{
+			return -1;
+		}
     }
 
     for (int i = Vector->Count; i > 0; i--)
@@ -115,14 +137,10 @@ int VecInsertAfterIndex(CC_VECTOR *Vector, int Index, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-        int *arr = (int *)realloc(Vector->Array, sizeof(int) * Vector->Size * 2);
-
-        if (NULL == arr)
-        {
-            return -1;
-        }
-
-        Vector->Array = arr;
+		if (-1 == VecResize(Vector, 1))
+		{
+			return -1;
+		}
     }
 
     for (int i = Vector->Count; i > Index + 1; i--)
@@ -157,14 +175,10 @@ int VecRemoveByIndex(CC_VECTOR *Vector, int Index)
 
     if (Vector->Count == Vector->Size / 4)
     {
-        int *arr = (int *)realloc(Vector->Array, sizeof(int) * Vector->Size / 2);
-
-        if (NULL == arr)
-        {
-            return -1;
-        }
-
-        Vector->Array = arr;
+		if (-1 == VecResize(Vector, 0))
+		{
+			return -1;
+		}
     }
 
     return 0;
@@ -204,16 +218,9 @@ int VecClear(CC_VECTOR *Vector)
         return -1;
     }
 
-    int *arr = (int *)malloc(sizeof(int));
-
-    if (NULL == arr)
-    {
-        return -1;
-    }
-
     free(Vector->Array);
-    Vector->Array = arr;
-    Vector->Size = 1;
+    Vector->Array = NULL;
+    Vector->Size = 0;
     Vector->Count = 0;
 
     return 0;
