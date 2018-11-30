@@ -2,7 +2,7 @@
 
 typedef struct _CC_VECTOR {
     // Members
-    int *Array;
+    int *Items;
     int Size;
     int Count;
 } CC_VECTOR;

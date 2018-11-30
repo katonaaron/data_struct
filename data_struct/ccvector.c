@@ -25,14 +25,14 @@ static int VecResize(CC_VECTOR *Vector, int Up)
         newSize = Vector->Size / 2;
     }
 
-    int *arr = (int *)realloc(Vector->Array, sizeof(int) * newSize);
+    int *array = (int *)realloc(Vector->Items, sizeof(int) * newSize);
 
-    if (NULL == arr)
+    if (NULL == array)
     {
         return -1;
     }
 
-    Vector->Array = arr;
+    Vector->Items = array;
     Vector->Size = newSize;
 
     return 0;
@@ -45,18 +45,19 @@ int VecCreate(CC_VECTOR **Vector)
         return -1;
     }
 
-    CC_VECTOR *vec = (CC_VECTOR *)malloc(sizeof(CC_VECTOR));
+    CC_VECTOR *vector = (CC_VECTOR *)malloc(sizeof(CC_VECTOR));
 
-    if (NULL == vec)
+    if (NULL == vector)
     {
+        *Vector = NULL;
         return -1;
     }
 
-    vec->Array = NULL;
-    vec->Count = 0;
-    vec->Size = 0;
+    vector->Items = NULL;
+    vector->Count = 0;
+    vector->Size = 0;
 
-    *Vector = vec;
+    *Vector = vector;
 
     return 0;
 }
@@ -68,9 +69,7 @@ int VecDestroy(CC_VECTOR **Vector)
         return -1;
     }
 
-    CC_VECTOR *vec = *Vector;
-
-    free(vec->Array);
+    free((*Vector)->Items);
     free(*Vector);
 
     *Vector = NULL;
@@ -93,7 +92,7 @@ int VecInsertTail(CC_VECTOR *Vector, int Value)
         }
     }
 
-    Vector->Array[Vector->Count++] = Value;
+    Vector->Items[Vector->Count++] = Value;
     return 0;
 }
 
@@ -114,10 +113,10 @@ int VecInsertHead(CC_VECTOR *Vector, int Value)
 
     for (int i = Vector->Count; i > 0; i--)
     {
-        Vector->Array[i] = Vector->Array[i - 1];
+        Vector->Items[i] = Vector->Items[i - 1];
     }
 
-    Vector->Array[0] = Value;
+    Vector->Items[0] = Value;
     Vector->Count++;
 
     return 0;
@@ -145,10 +144,10 @@ int VecInsertAfterIndex(CC_VECTOR *Vector, int Index, int Value)
 
     for (int i = Vector->Count; i > Index + 1; i--)
     {
-        Vector->Array[i] = Vector->Array[i - 1];
+        Vector->Items[i] = Vector->Items[i - 1];
     }
 
-    Vector->Array[Index + 1] = Value;
+    Vector->Items[Index + 1] = Value;
     Vector->Count++;
 
     return 0;
@@ -168,7 +167,7 @@ int VecRemoveByIndex(CC_VECTOR *Vector, int Index)
 
     for (int i = Index; i < Vector->Count - 1; i++)
     {
-        Vector->Array[i] = Vector->Array[i + 1];
+        Vector->Items[i] = Vector->Items[i + 1];
     }
 
     Vector->Count--;
@@ -196,7 +195,7 @@ int VecGetValueByIndex(CC_VECTOR *Vector, int Index, int *Value)
         return -1;
     }
 
-    *Value = Vector->Array[Index];
+    *Value = Vector->Items[Index];
 
     return 0;
 }
@@ -218,8 +217,8 @@ int VecClear(CC_VECTOR *Vector)
         return -1;
     }
 
-    free(Vector->Array);
-    Vector->Array = NULL;
+    free(Vector->Items);
+    Vector->Items = NULL;
     Vector->Size = 0;
     Vector->Count = 0;
 
@@ -264,11 +263,11 @@ static void QuickSort(int Array[], int Left, int Right)
 
 int VecSort(CC_VECTOR *Vector)
 {
-    if (NULL == Vector || NULL == Vector->Array)
+    if (NULL == Vector || NULL == Vector->Items)
     {
         return -1;
     }
 
-    QuickSort(Vector->Array, 0, Vector->Count - 1);
+    QuickSort(Vector->Items, 0, Vector->Count - 1);
     return 0;
 }
