@@ -18,6 +18,10 @@ static int VecResize(CC_VECTOR *Vector, int Up)
     }
     else
     {
+        if (0 == Vector->Size)
+        {
+            return -1;
+        }
         if (1 == Vector->Size)
         {
             return VecClear(Vector);
