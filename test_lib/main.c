@@ -130,7 +130,7 @@ cleanup:
     }
     return retVal;
 }
-              
+
 int TestHeap()
 {
     int retVal = -1;
@@ -302,7 +302,7 @@ int TestVector()
     int retVal = -1;
     int foundVal = 0;
     CC_VECTOR* usedVector = NULL;
-    
+
     retVal = VecCreate(&usedVector);
     if (0 != retVal)
     {
@@ -337,6 +337,21 @@ int TestVector()
         printf("VecInsertAfterIndex failed!\n");
         goto cleanup;
     }
+
+    /*printf("Vector before sort: ");
+    for (int i = 0; i < VecGetCount(usedVector); i++)
+    {
+        VecGetValueByIndex(usedVector, i, &foundVal);
+        printf("%d ", foundVal);
+    }
+    VecSort(usedVector);
+    printf("\nVector after sort: ");
+    for (int i = 0; i < VecGetCount(usedVector); i++)
+    {
+        VecGetValueByIndex(usedVector, i, &foundVal);
+        printf("%d ", foundVal);
+    }
+    printf("\n");*/
 
     retVal = VecRemoveByIndex(usedVector, 0);
     if (0 != retVal)
