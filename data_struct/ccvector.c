@@ -3,39 +3,39 @@
 
 static int VecResize(CC_VECTOR *Vector, int Up)
 {
-	int new_size;
+    int newSize;
 
-	if (Up)
-	{
-		if (0 == Vector->Size) 
-		{
-			new_size = 1;
-		} 
-		else
-		{
-			new_size = Vector->Size * 2;
-		}
-	}
-	else
-	{
-		if (1 == Vector->Size)
-		{
-			return VecClear(Vector);
-		}
-		new_size = Vector->Size / 2;
-	}
+    if (Up)
+    {
+        if (0 == Vector->Size)
+        {
+            newSize = 1;
+        }
+        else
+        {
+            newSize = Vector->Size * 2;
+        }
+    }
+    else
+    {
+        if (1 == Vector->Size)
+        {
+            return VecClear(Vector);
+        }
+        newSize = Vector->Size / 2;
+    }
 
-	int *arr = (int *)realloc(Vector->Array, sizeof(int) * new_size);
+    int *arr = (int *)realloc(Vector->Array, sizeof(int) * newSize);
 
-	if (NULL == arr)
-	{
-		return -1;
-	}
+    if (NULL == arr)
+    {
+        return -1;
+    }
 
-	Vector->Array = arr;
-	Vector->Size = new_size;
+    Vector->Array = arr;
+    Vector->Size = newSize;
 
-	return 0;
+    return 0;
 }
 
 int VecCreate(CC_VECTOR **Vector)
@@ -52,7 +52,7 @@ int VecCreate(CC_VECTOR **Vector)
         return -1;
     }
 
-	vec->Array = NULL;
+    vec->Array = NULL;
     vec->Count = 0;
     vec->Size = 0;
 
@@ -87,10 +87,10 @@ int VecInsertTail(CC_VECTOR *Vector, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-		if (-1 == VecResize(Vector, 1))
-		{
-			return -1;
-		}
+        if (-1 == VecResize(Vector, 1))
+        {
+            return -1;
+        }
     }
 
     Vector->Array[Vector->Count++] = Value;
@@ -106,10 +106,10 @@ int VecInsertHead(CC_VECTOR *Vector, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-		if (-1 == VecResize(Vector, 1))
-		{
-			return -1;
-		}
+        if (-1 == VecResize(Vector, 1))
+        {
+            return -1;
+        }
     }
 
     for (int i = Vector->Count; i > 0; i--)
@@ -137,10 +137,10 @@ int VecInsertAfterIndex(CC_VECTOR *Vector, int Index, int Value)
 
     if (Vector->Size == Vector->Count)
     {
-		if (-1 == VecResize(Vector, 1))
-		{
-			return -1;
-		}
+        if (-1 == VecResize(Vector, 1))
+        {
+            return -1;
+        }
     }
 
     for (int i = Vector->Count; i > Index + 1; i--)
@@ -175,10 +175,10 @@ int VecRemoveByIndex(CC_VECTOR *Vector, int Index)
 
     if (Vector->Count == Vector->Size / 4)
     {
-		if (-1 == VecResize(Vector, 0))
-		{
-			return -1;
-		}
+        if (-1 == VecResize(Vector, 0))
+        {
+            return -1;
+        }
     }
 
     return 0;
@@ -226,8 +226,49 @@ int VecClear(CC_VECTOR *Vector)
     return 0;
 }
 
+static void QuickSort(int Array[], int Left, int Right)
+{
+    int i = Left, j = Right, tmp;
+    int pivot = Array[(Left + Right) / 2];
+
+    while (i <= j)
+    {
+        while (Array[i] < pivot)
+        {
+            i++;
+        }
+        while (Array[j] > pivot)
+        {
+            j++;
+        }
+
+        if (i <= j)
+        {
+            tmp = Array[j];
+            Array[j] = Array[i];
+            Array[i] = tmp;
+            i++;
+            j--;
+        }
+    }
+
+    if (Left < j)
+    {
+        QuickSort(Array, Left, j);
+    }
+    if (i < Right)
+    {
+        QuickSort(Array, i, Right);
+    }
+}
+
 int VecSort(CC_VECTOR *Vector)
 {
-    CC_UNREFERENCED_PARAMETER(Vector);
-    return -1;
+    if (NULL == Vector || NULL == Vector->Array)
+    {
+        return -1;
+    }
+
+    QuickSort(Vector->Array, 0, Vector->Count - 1);
+    return 0;
 }
