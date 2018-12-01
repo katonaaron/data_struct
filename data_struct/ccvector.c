@@ -280,3 +280,16 @@ int VecSort(CC_VECTOR *Vector)
     QuickSort(Vector->Items, 0, Vector->Count - 1);
     return 0;
 }
+
+int VecSwap(CC_VECTOR *Vector, int Index1, int Index2)
+{
+    if (NULL == Vector || Index1 < 0 || Index1 >= Vector->Count || Index2 < 0 || Index2 >= Vector->Count)
+    {
+        return -1;
+    }
+
+    int tmp = Vector->Items[Index1];
+    Vector->Items[Index1] = Vector->Items[Index2];
+    Vector->Items[Index2] = tmp;
+    return 0;
+}
