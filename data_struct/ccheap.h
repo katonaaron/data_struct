@@ -11,7 +11,7 @@ typedef enum _CC_HEAP_TYPE {
 typedef struct _CC_HEAP {
     // Members
     CC_HEAP_TYPE Type;
-    CC_VECTOR Items;
+    CC_VECTOR *Items;
 } CC_HEAP, *PCC_HEAP;
   
 // HpCreateMaxHeap and HpCreateMinHeap should create a max heap or a min heap, 

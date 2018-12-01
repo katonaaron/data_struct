@@ -5,7 +5,7 @@ typedef struct _CC_VECTOR {
     int *Items;
     int Size;
     int Count;
-} CC_VECTOR;
+} CC_VECTOR, *PCC_VECTOR;
 
 int VecCreate(CC_VECTOR **Vector);
 int VecDestroy(CC_VECTOR **Vector);
