@@ -3,6 +3,11 @@
 
 static int VecResize(CC_VECTOR *Vector, int Up)
 {
+    if (NULL == Vector)
+    {
+        return -1;
+    }
+
     int newSize;
 
     if (Up)
@@ -164,7 +169,7 @@ int VecRemoveByIndex(CC_VECTOR *Vector, int Index)
         return -1;
     }
 
-    if (Index < 0 && Index >= Vector->Count)
+    if (Index < 0 || Index >= Vector->Count)
     {
         return -1;
     }

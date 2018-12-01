@@ -303,95 +303,273 @@ int TestVector()
     int foundVal = 0;
     CC_VECTOR* usedVector = NULL;
 
+    //Test VecCreate
     retVal = VecCreate(&usedVector);
     if (0 != retVal)
     {
-        printf("VecCreate failed!\n");
+        printf("VecCreate failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != VecCreate(NULL))
+    {
+        printf("VecCreate failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
+    //Size test
+    if (0 != usedVector->Size)
+    {
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecInsertTail
     retVal = VecInsertTail(usedVector, 10);
     if (0 != retVal)
     {
-        printf("VecInsertTail failed!\n");
+        printf("VecInsertTail failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != VecInsertTail(NULL, 10) || usedVector->Items[0] != 10)
+    {
+        printf("VecInsertTail failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
+    //Size test
+    if (1 != usedVector->Size)
+    {
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecInsertHead
     retVal = VecInsertHead(usedVector, 16);
     if (0 != retVal)
     {
-        printf("VecInsertHead failed!\n");
+        printf("VecInsertHead failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (VecGetCount(usedVector) != 2)
+    if (-1 != VecInsertHead(NULL, 10) || usedVector->Items[0] != 16 || usedVector->Items[1] != 10)
     {
-        printf("Invalid count returned!\n");
+        printf("VecInsertHead failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = VecInsertAfterIndex(usedVector, 0, 20);
-    if (0 != retVal)
+    //Size test
+    if (2 != usedVector->Size)
     {
-        printf("VecInsertAfterIndex failed!\n");
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
-    /*printf("Vector before sort: ");
+    //Test VecGetCount
+    if (VecGetCount(usedVector) != 2 || VecGetCount(usedVector) != usedVector->Count)
+    {
+        printf("Invalid count returned!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecInsertAfterIndex
+    retVal = VecInsertAfterIndex(usedVector, -1, 20);
+    if (0 != retVal)
+    {
+        printf("VecInsertAfterIndex failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != VecInsertAfterIndex(NULL, 0, 10)
+        || -1 != VecInsertAfterIndex(usedVector, -2, 20)
+        || -1 != VecInsertAfterIndex(usedVector, 3, 20)
+        || usedVector->Items[1] != 16
+        || usedVector->Items[0] != 20
+        || usedVector->Items[2] != 10)
+    {
+        printf("VecInsertAfterIndex failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Size test
+    if (4 != usedVector->Size)
+    {
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecGetValueByIndex
+    retVal = VecGetValueByIndex(usedVector, 0, &foundVal);
+    if (0 != retVal
+        || -1 != VecGetValueByIndex(NULL, 0, &foundVal)
+        || -1 != VecGetValueByIndex(usedVector, 0, NULL)
+        || -1 != VecGetValueByIndex(usedVector, -1, &foundVal)
+        || -1 != VecGetValueByIndex(usedVector, 5, &foundVal))
+    {
+        printf("VecGetValueByIndex failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (foundVal != 20)
+    {
+        printf("Invalid value found at position 0: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecSort
+    int freq[100] = { 0 }, prev = -1;
     for (int i = 0; i < VecGetCount(usedVector); i++)
     {
-        VecGetValueByIndex(usedVector, i, &foundVal);
-        printf("%d ", foundVal);
+        if (0 != VecGetValueByIndex(usedVector, i, &foundVal))
+        {
+            printf("VecGetValueByIndex failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        freq[foundVal]++;
     }
     VecSort(usedVector);
-    printf("\nVector after sort: ");
     for (int i = 0; i < VecGetCount(usedVector); i++)
     {
-        VecGetValueByIndex(usedVector, i, &foundVal);
-        printf("%d ", foundVal);
+        if (0 != VecGetValueByIndex(usedVector, i, &foundVal))
+        {
+            printf("VecGetValueByIndex failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        if (i != 0 && foundVal < prev)
+        {
+            printf("VecSort failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        prev = foundVal;
+        freq[foundVal]--;
     }
-    printf("\n");*/
+    for (int i = 0; i < 100; i++)
+    {
+        if (freq[i] != 0)
+        {
+            printf("VecSort failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
 
+    //Test VecRemoveByIndex
     retVal = VecRemoveByIndex(usedVector, 0);
     if (0 != retVal)
     {
-        printf("VecRemoveByIndex failed!\n");
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    retVal = VecGetValueByIndex(usedVector, 0, &foundVal);
-    if (0 != retVal)
+    if (-1 != VecRemoveByIndex(NULL, 0))
     {
-        printf("VecGetValueByIndex failed!\n");
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
-
-    if (foundVal != 20)
+    if (-1 != VecRemoveByIndex(usedVector, -1))
     {
-        printf("Invalid value found at position 0\n");
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != VecRemoveByIndex(usedVector, 3))
+    {
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (usedVector->Items[0] != 16
+        || usedVector->Items[1] != 20
+        || VecGetCount(usedVector) != 2)
+    {
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = VecClear(usedVector);
-    if (0 != retVal)
+    //Size test
+    if (4 != usedVector->Size)
     {
-        printf("VecClear failed!\n");
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
+    //Size test
+    retVal = VecRemoveByIndex(usedVector, 0);
+    if (0 != retVal)
+    {
+        printf("VecRemoveByIndex failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (2 != usedVector->Size)
+    {
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test VecClear
+    retVal = VecClear(usedVector);
+    if (0 != retVal || -1 != VecClear(NULL))
+    {
+        printf("VecClear failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
     if (0 != VecGetCount(usedVector))
     {
-        printf("Invalid count after clear\n");
+        printf("Invalid count after clear: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
+
+    //Size test
+    if (0 != usedVector->Size)
+    {
+        printf("The Vector doesn't have the required size!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test the VecResize static function. 
+    /*if (-1 != VecResize(NULL, 1)
+        || 0 != VecResize(usedVector, 1)
+        || 1 != usedVector->Size
+        || 0 != VecResize(usedVector, 1)
+        || 2 != usedVector->Size
+        || 0 != VecResize(usedVector, 1)
+        || 4 != usedVector->Size
+        || 0 != VecResize(usedVector, 0)
+        || 2 != usedVector->Size
+        || 0 != VecResize(usedVector, 0)
+        || 1 != usedVector->Size
+        || 0 != VecResize(usedVector, 0)
+        || 0 != usedVector->Size
+        || -1 != VecResize(usedVector, 0))
+    {
+        printf("VecResize failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }*/
 
 cleanup:
     if (NULL != usedVector)
     {
-        if (0 != VecDestroy(&usedVector))
+        //Test VecDestroy
+        if (0 != VecDestroy(&usedVector)
+            || NULL != usedVector
+            || -1 != VecDestroy(NULL))
         {
             printf("VecDestroy failed!\n");
             retVal = -1;
