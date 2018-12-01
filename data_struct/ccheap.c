@@ -103,7 +103,7 @@ int HpSortToVector(CC_HEAP *Heap, CC_VECTOR* SortedVector)
 
 static int HpCreateHeap(CC_HEAP **Heap, CC_HEAP_TYPE Type)
 {
-    if (NULL == Heap)
+    if (NULL == Heap || MIN_HEAP != Type && MAX_HEAP != Type)
     {
         return -1;
     }
