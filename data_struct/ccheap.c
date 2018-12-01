@@ -11,14 +11,14 @@ static int HpLoadVector(CC_HEAP *Heap, CC_VECTOR* InitialElements);
 
 int HpCreateMaxHeap(CC_HEAP **MaxHeap, CC_VECTOR* InitialElements)
 {
-    if (-1 == HpCreateHeap(MaxHeap, MAX_HEAP))
+    if (0 != HpCreateHeap(MaxHeap, MAX_HEAP))
     {
         return -1;
     }
 
     if (NULL != InitialElements)
     {
-        if (-1 == HpLoadVector(*MaxHeap, InitialElements))
+        if (0 != HpLoadVector(*MaxHeap, InitialElements))
         {
             HpDestroy(MaxHeap);
             return -1;
@@ -30,14 +30,14 @@ int HpCreateMaxHeap(CC_HEAP **MaxHeap, CC_VECTOR* InitialElements)
 
 int HpCreateMinHeap(CC_HEAP **MinHeap, CC_VECTOR* InitialElements)
 {
-    if (-1 == HpCreateHeap(MinHeap, MIN_HEAP))
+    if (0 != HpCreateHeap(MinHeap, MIN_HEAP))
     {
         return -1;
     }
 
     if (NULL != InitialElements)
     {
-        if (-1 == HpLoadVector(*MinHeap, InitialElements))
+        if (0 != HpLoadVector(*MinHeap, InitialElements))
         {
             HpDestroy(MinHeap);
             return -1;
@@ -54,17 +54,72 @@ int HpDestroy(CC_HEAP **Heap)
         return -1;
     }
 
-    free((*Heap)->Items);
-    free(*Heap);
+    if (NULL != (*Heap)->Items)
+    {
+        PCC_VECTOR vector = (*Heap)->Items;
+        if (0 != VecDestroy(&vector))
+        {
+            return -1;
+        }
+    }
 
+    free(*Heap);
+    *Heap = NULL;
     return 0;
 }
 
 int HpInsert(CC_HEAP *Heap, int Value)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    CC_UNREFERENCED_PARAMETER(Value);
-    return -1;
+    if (NULL == Heap || NULL == Heap->Items)
+    {
+        return -1;
+    }
+
+    PCC_VECTOR vector = Heap->Items;
+
+    if (0 != VecInsertTail(vector, Value))
+    {
+        return -1;
+    }
+
+    int child = VecGetCount(vector) - 1;
+    int parent, childValue, parentValue;
+    int mustSwap = 0;
+
+    while (child)
+    {
+        parent = (child - 1) / 2;
+        if (0 != VecGetValueByIndex(vector, child, &childValue)
+            || 0 != VecGetValueByIndex(vector, parent, &parentValue))
+        {
+            return -1;
+        }
+
+        switch (Heap->Type)
+        {
+        case MIN_HEAP:
+            mustSwap = childValue < parentValue;
+            break;
+        case MAX_HEAP:
+            mustSwap = childValue > parentValue;
+            break;
+        default:
+            return -1;
+            break;
+        }
+
+        if (mustSwap)
+        {
+            if (0 != VecSwap(vector, child, parent))
+            {
+                return -1;
+            }
+        }
+
+        child = parent;
+    }
+
+    return 0;
 }
 
 int HpRemove(CC_HEAP *Heap, int Value)
@@ -76,9 +131,20 @@ int HpRemove(CC_HEAP *Heap, int Value)
 
 int HpGetExtreme(CC_HEAP *Heap, int* ExtremeValue)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    CC_UNREFERENCED_PARAMETER(ExtremeValue);
-    return -1;
+    if (NULL == Heap || NULL == Heap->Items || NULL == ExtremeValue)
+    {
+        return -1;
+    }
+
+    int extreme;
+    if (0 != VecGetValueByIndex(Heap->Items, 0, &extreme))
+    {
+        return -1;
+    }
+
+    *ExtremeValue = extreme;
+
+    return 0;
 }
 
 int HpPopExtreme(CC_HEAP *Heap, int* ExtremeValue)
@@ -90,8 +156,12 @@ int HpPopExtreme(CC_HEAP *Heap, int* ExtremeValue)
 
 int HpGetElementCount(CC_HEAP *Heap)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    return -1;
+    if (NULL == Heap || NULL == Heap->Items)
+    {
+        return -1;
+    }
+
+    return VecGetCount(Heap->Items);
 }
 
 int HpSortToVector(CC_HEAP *Heap, CC_VECTOR* SortedVector)
@@ -118,9 +188,17 @@ static int HpCreateHeap(CC_HEAP **Heap, CC_HEAP_TYPE Type)
 
     heap->Type = Type;
     heap->Items = NULL;
-    heap->Count = 0;
-    heap->Size = 0;
 
+    PCC_VECTOR vector;
+
+    if (0 != VecCreate(&vector))
+    {
+        HpDestroy(&heap);
+        *Heap = NULL;
+        return -1;
+    }
+
+    heap->Items = vector;
     *Heap = heap;
     return 0;
 }
@@ -135,11 +213,11 @@ static int HpLoadVector(CC_HEAP *Heap, CC_VECTOR* InitialElements)
     int vectorSize = VecGetCount(InitialElements), element;
     for (int i = 0; i < vectorSize; i++)
     {
-        if (-1 == VecGetValueByIndex(InitialElements, i, &element))
+        if (0 != VecGetValueByIndex(InitialElements, i, &element))
         {
             return -1;
         }
-        if (-1 == HpInsert(Heap, element))
+        if (0 != HpInsert(Heap, element))
         {
             return -1;
         }
