@@ -542,6 +542,24 @@ int TestVector()
         goto cleanup;
     }
 
+    //Test VecSwap
+    if (-1 != VecSwap(NULL, 0, 0)
+        || 0 != VecInsertTail(usedVector, 2)
+        || 0 != VecInsertTail(usedVector, 3)
+        || 0 != VecSwap(usedVector, 0, 1)
+        || 3 != usedVector->Items[0]
+        || 2 != usedVector->Items[1]
+        || -1 != VecSwap(usedVector, -1, 0)
+        || -1 != VecSwap(usedVector, 0, -1)
+        || -1 != VecSwap(usedVector, 2, 0)
+        || -1 != VecSwap(usedVector, 0, 2)
+        )
+    {
+        printf("VecSwap failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
     //Test the VecResize static function. 
     /*if (-1 != VecResize(NULL, 1)
         || 0 != VecResize(usedVector, 1)
