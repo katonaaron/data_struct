@@ -2,6 +2,7 @@
 
 #include "ccvector.h"
 
+//CC_HEAP_TYPE: Constants that define the type of the heap
 typedef enum _CC_HEAP_TYPE {
     MIN_HEAP,
     MAX_HEAP
