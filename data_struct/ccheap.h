@@ -2,10 +2,18 @@
 
 #include "ccvector.h"
 
-typedef struct _CC_HEAP{ 
+typedef enum _CC_HEAP_TYPE {
+    MIN_HEAP,
+    MAX_HEAP
+} CC_HEAP_TYPE;
+
+typedef struct _CC_HEAP {
     // Members
-    int PlaceHolder; // placeholder to be removed when actual implementation is added
-} CC_HEAP; 
+    CC_HEAP_TYPE Type;
+    int *Items;
+    int Size;
+    int Count;
+} CC_HEAP, *PCC_HEAP;
   
 // HpCreateMaxHeap and HpCreateMinHeap should create a max heap or a min heap, 
 // respectively. InitialElements is an optional parameter and, if it is not null, the constructed
