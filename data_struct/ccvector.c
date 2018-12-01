@@ -1,51 +1,11 @@
 #include "ccvector.h"
 #include "common.h"
 
-static int VecResize(CC_VECTOR *Vector, int Up)
-{
-    if (NULL == Vector)
-    {
-        return -1;
-    }
-
-    int newSize;
-
-    if (Up)
-    {
-        if (0 == Vector->Size)
-        {
-            newSize = 1;
-        }
-        else
-        {
-            newSize = Vector->Size * 2;
-        }
-    }
-    else
-    {
-        if (0 == Vector->Size)
-        {
-            return -1;
-        }
-        if (1 == Vector->Size)
-        {
-            return VecClear(Vector);
-        }
-        newSize = Vector->Size / 2;
-    }
-
-    int *array = (int *)realloc(Vector->Items, sizeof(int) * newSize);
-
-    if (NULL == array)
-    {
-        return -1;
-    }
-
-    Vector->Items = array;
-    Vector->Size = newSize;
-
-    return 0;
-}
+//VecResize increments or decrements the size of the dynamically allocated array
+//int Up: selects the incrementation or the decrementation operation
+//  Up == 1: increment
+//  Up == 0: decrement
+static int VecResize(CC_VECTOR *Vector, int Up);
 
 int VecCreate(CC_VECTOR **Vector)
 {
@@ -291,5 +251,51 @@ int VecSwap(CC_VECTOR *Vector, int Index1, int Index2)
     int tmp = Vector->Items[Index1];
     Vector->Items[Index1] = Vector->Items[Index2];
     Vector->Items[Index2] = tmp;
+    return 0;
+}
+
+static int VecResize(CC_VECTOR *Vector, int Up)
+{
+    if (NULL == Vector)
+    {
+        return -1;
+    }
+
+    int newSize;
+
+    if (Up)
+    {
+        if (0 == Vector->Size)
+        {
+            newSize = 1;
+        }
+        else
+        {
+            newSize = Vector->Size * 2;
+        }
+    }
+    else
+    {
+        if (0 == Vector->Size)
+        {
+            return -1;
+        }
+        if (1 == Vector->Size)
+        {
+            return VecClear(Vector);
+        }
+        newSize = Vector->Size / 2;
+    }
+
+    int *array = (int *)realloc(Vector->Items, sizeof(int) * newSize);
+
+    if (NULL == array)
+    {
+        return -1;
+    }
+
+    Vector->Items = array;
+    Vector->Size = newSize;
+
     return 0;
 }
