@@ -209,17 +209,16 @@ int HpSortToVector(CC_HEAP *Heap, CC_VECTOR* SortedVector)
         return -1;
     }
 
-    PCC_HEAP heap;
-
-    if (0 != HpCreateMinHeap(&heap, Heap->Items))
+    PCC_VECTOR vector = Heap->Items;
+    int vectorSize = VecGetCount(vector), element;
+    if (vectorSize < 0)
     {
         return -1;
     }
 
-    int element;
-    while (HpGetElementCount(heap) > 0)
+    for (int i = 0; i < vectorSize; i++)
     {
-        if (0 != HpPopExtreme(heap, &element))
+        if (0 != VecGetValueByIndex(vector, i, &element))
         {
             return -1;
         }
@@ -229,7 +228,7 @@ int HpSortToVector(CC_HEAP *Heap, CC_VECTOR* SortedVector)
         }
     }
 
-    if (0 != HpDestroy(&heap))
+    if (0 != VecSort(SortedVector))
     {
         return -1;
     }
