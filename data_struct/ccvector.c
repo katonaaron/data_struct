@@ -207,7 +207,7 @@ static void QuickSort(int Array[], int Left, int Right)
         }
         while (Array[j] > pivot)
         {
-            j++;
+            j--;
         }
 
         if (i <= j)
