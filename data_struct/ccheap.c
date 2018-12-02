@@ -6,8 +6,20 @@
 //    this will define the type of the heap
 static int HpCreateHeap(CC_HEAP **Heap, CC_HEAP_TYPE Type);
 
-//HpLoadVector loads a CC_VECTOR into a CC_HEAP
-static int HpLoadVector(CC_HEAP *Heap, CC_VECTOR* InitialElements);
+//HpHeapifyVector loads a CC_VECTOR into a CC_HEAP
+static int HpHeapifyVector(CC_HEAP *Heap, CC_VECTOR* InitialElements);
+
+//Compares two values according to the type of the heap.
+//Returns:  1 - Num1 should be higher then Num2 in the tree. (So SiftUp might be needed)
+//          0 - Num1 shouldn't be higher then Num2 in the tree.
+//          -1 - Error
+static int HpCompare(int Num1, int Num2, CC_HEAP_TYPE Type);
+
+//HpSift sifts a node up to preserve the heap structure
+static int HpSiftUp(CC_HEAP *Heap, int Node);
+
+//HpSift sifts a node down to preserve the heap structure
+static int HpSiftDown(CC_HEAP *Heap, int Node);
 
 int HpCreateMaxHeap(CC_HEAP **MaxHeap, CC_VECTOR* InitialElements)
 {
@@ -18,7 +30,7 @@ int HpCreateMaxHeap(CC_HEAP **MaxHeap, CC_VECTOR* InitialElements)
 
     if (NULL != InitialElements)
     {
-        if (0 != HpLoadVector(*MaxHeap, InitialElements))
+        if (0 != HpHeapifyVector(*MaxHeap, InitialElements))
         {
             HpDestroy(MaxHeap);
             return -1;
@@ -37,7 +49,7 @@ int HpCreateMinHeap(CC_HEAP **MinHeap, CC_VECTOR* InitialElements)
 
     if (NULL != InitialElements)
     {
-        if (0 != HpLoadVector(*MinHeap, InitialElements))
+        if (0 != HpHeapifyVector(*MinHeap, InitialElements))
         {
             HpDestroy(MinHeap);
             return -1;
@@ -82,51 +94,67 @@ int HpInsert(CC_HEAP *Heap, int Value)
         return -1;
     }
 
-    int child = VecGetCount(vector) - 1;
-    int parent, childValue, parentValue;
-    int mustSwap = 0;
+    int vectorSize = VecGetCount(vector);
 
-    while (child)
+    if (vectorSize < 0)
     {
-        parent = (child - 1) / 2;
-        if (0 != VecGetValueByIndex(vector, child, &childValue)
-            || 0 != VecGetValueByIndex(vector, parent, &parentValue))
-        {
-            return -1;
-        }
-
-        switch (Heap->Type)
-        {
-        case MIN_HEAP:
-            mustSwap = childValue < parentValue;
-            break;
-        case MAX_HEAP:
-            mustSwap = childValue > parentValue;
-            break;
-        default:
-            return -1;
-            break;
-        }
-
-        if (mustSwap)
-        {
-            if (0 != VecSwap(vector, child, parent))
-            {
-                return -1;
-            }
-        }
-
-        child = parent;
+        return -1;
     }
+
+    HpSiftUp(Heap, vectorSize - 1);
 
     return 0;
 }
 
 int HpRemove(CC_HEAP *Heap, int Value)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    CC_UNREFERENCED_PARAMETER(Value);
-    return -1;
+    if (NULL == Heap || NULL == Heap->Items)
+    {
+        return -1;
+    }
+
+    PCC_VECTOR vector = Heap->Items;
+
+    int vectorSize = VecGetCount(vector), element;
+
+    if (vectorSize < 0)
+    {
+        return -1;
+    }
+
+    for (int i = vectorSize - 1; i >= 0; i--)
+    {
+        if (0 != VecGetValueByIndex(vector, i, &element))
+        {
+            return -1;
+        }
+        if (element == Value)
+        {
+            if (0 != VecSwap(vector, i, vectorSize - 1))
+            {
+                return -1;
+            }
+            if (0 != VecRemoveByIndex(vector, vectorSize - 1))
+            {
+                return -1;
+            }
+            vectorSize--;
+            if (vectorSize)
+            {
+                if (0 != HpSiftUp(Heap, i))
+                {
+                    return -1;
+                }
+                if (0 != HpSiftDown(Heap, i))
+                {
+                    return -1;
+                }
+            }
+        }
+
+    }
+
+    return 0;
 }
 
 int HpGetExtreme(CC_HEAP *Heap, int* ExtremeValue)
@@ -149,9 +177,19 @@ int HpGetExtreme(CC_HEAP *Heap, int* ExtremeValue)
 
 int HpPopExtreme(CC_HEAP *Heap, int* ExtremeValue)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    CC_UNREFERENCED_PARAMETER(ExtremeValue);
-    return -1;
+    int extremeValue;
+
+    if (0 != HpGetExtreme(Heap, &extremeValue))
+    {
+        return -1;
+    }
+    if (0 != HpRemove(Heap, extremeValue))
+    {
+        return -1;
+    }
+    *ExtremeValue = extremeValue;
+
+    return 0;
 }
 
 int HpGetElementCount(CC_HEAP *Heap)
@@ -166,9 +204,36 @@ int HpGetElementCount(CC_HEAP *Heap)
 
 int HpSortToVector(CC_HEAP *Heap, CC_VECTOR* SortedVector)
 {
-    CC_UNREFERENCED_PARAMETER(Heap);
-    CC_UNREFERENCED_PARAMETER(SortedVector);
-    return -1;
+    if (NULL == Heap || NULL == Heap->Items || NULL == SortedVector)
+    {
+        return -1;
+    }
+
+    PCC_HEAP heap;
+
+    if (0 != HpCreateMinHeap(&heap, Heap->Items))
+    {
+        return -1;
+    }
+
+    int element;
+    while (HpGetElementCount(heap) > 0)
+    {
+        if (0 != HpPopExtreme(heap, &element))
+        {
+            return -1;
+        }
+        if (0 != VecInsertTail(SortedVector, element))
+        {
+            return -1;
+        }
+    }
+
+    if (0 != HpDestroy(&heap))
+    {
+        return -1;
+    }
+    return 0;
 }
 
 static int HpCreateHeap(CC_HEAP **Heap, CC_HEAP_TYPE Type)
@@ -203,14 +268,19 @@ static int HpCreateHeap(CC_HEAP **Heap, CC_HEAP_TYPE Type)
     return 0;
 }
 
-static int HpLoadVector(CC_HEAP *Heap, CC_VECTOR* InitialElements)
+static int HpHeapifyVector(CC_HEAP *Heap, CC_VECTOR* InitialElements)
 {
-    if (NULL == Heap || NULL == InitialElements)
+    if (NULL == Heap || NULL == Heap->Items || NULL == InitialElements)
     {
         return -1;
     }
 
     int vectorSize = VecGetCount(InitialElements), element;
+    if (vectorSize < 0)
+    {
+        return -1;
+    }
+
     for (int i = 0; i < vectorSize; i++)
     {
         if (0 != VecGetValueByIndex(InitialElements, i, &element))
@@ -222,6 +292,134 @@ static int HpLoadVector(CC_HEAP *Heap, CC_VECTOR* InitialElements)
             return -1;
         }
     }
+
+    return 0;
+}
+
+static int HpCompare(int Num1, int Num2, CC_HEAP_TYPE Type)
+{
+    switch (Type)
+    {
+    case MIN_HEAP:
+        return Num1 < Num2;
+        break;
+    case MAX_HEAP:
+        return Num1 > Num2;
+        break;
+    default:
+        return -1;
+        break;
+    }
+}
+
+static int HpSiftUp(CC_HEAP *Heap, int Node)
+{
+    if (NULL == Heap || NULL == Heap->Items)
+    {
+        return -1;
+    }
+
+    PCC_VECTOR vector = Heap->Items;
+
+    int vectorSize = VecGetCount(vector);
+
+    if (vectorSize < 0 || Node < 0 || Node >= vectorSize)
+    {
+        return -1;
+    }
+
+    int parent, nodeValue, parentValue, compare;
+
+    while (Node)
+    {
+        parent = (Node - 1) / 2;
+
+        if (0 != VecGetValueByIndex(vector, Node, &nodeValue) || 0 != VecGetValueByIndex(vector, parent, &parentValue))
+        {
+            return -1;
+        }
+
+        compare = HpCompare(nodeValue, parentValue, Heap->Type);
+        if (compare < 0)
+        {
+            return -1;
+        }
+        if (compare)
+        {
+            if (0 != VecSwap(vector, Node, parent))
+            {
+                return -1;
+            }
+        }
+
+        Node = parent;
+    }
+
+
+    return 0;
+}
+
+static int HpSiftDown(CC_HEAP *Heap, int Node)
+{
+    if (NULL == Heap || NULL == Heap->Items)
+    {
+        return -1;
+    }
+
+    PCC_VECTOR vector = Heap->Items;
+
+    int vectorSize = VecGetCount(vector);
+
+    if (vectorSize < 0 || Node < 0 || Node >= vectorSize)
+    {
+        return -1;
+    }
+
+    int child, nodeValue, childValue, child2Value, compare;
+
+    while ((child = Node * 2 + 1) < vectorSize)
+    {
+
+        if (0 != VecGetValueByIndex(vector, Node, &nodeValue) || 0 != VecGetValueByIndex(vector, child, &childValue))
+        {
+            return -1;
+        }
+
+        if (child + 1 < vectorSize)
+        {
+            if (0 != VecGetValueByIndex(vector, child + 1, &child2Value))
+            {
+                return -1;
+            }
+
+            compare = HpCompare(child2Value, childValue, Heap->Type);
+            if (compare < 0)
+            {
+                return -1;
+            }
+            if (compare)
+            {
+                childValue = child2Value;
+                child++;
+            }
+        }
+
+        compare = HpCompare(childValue, nodeValue, Heap->Type);
+        if (compare < 0)
+        {
+            return -1;
+        }
+        if (compare)
+        {
+            if (0 != VecSwap(vector, Node, child))
+            {
+                return -1;
+            }
+        }
+
+        Node = child;
+    }
+
 
     return 0;
 }
