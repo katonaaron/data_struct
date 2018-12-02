@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "ccvector.h"
 #include "ccstack.h"
 #include "cchashtable.h"
@@ -135,56 +137,398 @@ int TestHeap()
 {
     int retVal = -1;
     int foundVal = -1;
-    CC_HEAP* usedHeap = NULL;
+    CC_HEAP* minHeap = NULL, *maxHeap = NULL;
 
-    retVal = HpCreateMinHeap(&usedHeap, NULL);
+    //Test HpCreateMinHeap
+    retVal = HpCreateMinHeap(&minHeap, NULL);
     if (0 != retVal)
     {
-        printf("HpCreateMinHeap failed!\n");
+        printf("HpCreateMinHeap failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    retVal = HpInsert(usedHeap, 20);
-    if (0 != retVal)
+    if (-1 != HpCreateMinHeap(NULL, NULL))
     {
-        printf("HpInsert failed!\n");
-        goto cleanup;
-    }
-
-    retVal = HpInsert(usedHeap, 10);
-    if (0 != retVal)
-    {
-        printf("HpInsert failed!\n");
-        goto cleanup;
-    }
-
-    if (2 != HpGetElementCount(usedHeap))
-    {
-        printf("Invalid element count!\n");
+        printf("HpCreateMinHeap failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = HpGetExtreme(usedHeap, &foundVal);
+    //Test HpCreateMaxHeap
+    retVal = HpCreateMaxHeap(&maxHeap, NULL);
     if (0 != retVal)
     {
-        printf("HpGetExtreme failed!\n");
+        printf("HpCreateMaxHeap failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != HpCreateMaxHeap(NULL, NULL))
+    {
+        printf("HpCreateMaxHeap failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
-    if (10 != foundVal)
+    //TODO: heapify vector
+
+    //Test HpInsert
+    if (-1 != HpInsert(NULL, 1))
     {
-        printf("Invalid minimum value returned!");
+        printf("HpInsert failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
+    }
+    retVal = HpInsert(minHeap, 1);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(minHeap, 6);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (2 != HpGetElementCount(minHeap))
+    {
+        printf("Invalid element count!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != minHeap->Items->Items[0] && 6 != minHeap->Items->Items[0])
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 1);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 6);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (2 != HpGetElementCount(maxHeap))
+    {
+        printf("Invalid element count!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (6 != minHeap->Items->Items[0] && 1 != minHeap->Items->Items[0])
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test HpGetExtreme
+    retVal = HpGetExtreme(minHeap, &foundVal);
+    if (0 != retVal)
+    {
+        printf("HpGetExtreme failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (1 != foundVal)
+    {
+        printf("Invalid minimum value returned!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    retVal = HpGetExtreme(maxHeap, &foundVal);
+    if (0 != retVal)
+    {
+        printf("HpGetExtreme failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (6 != foundVal)
+    {
+        printf("Invalid minimum value returned!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Insert additional elements to test the other functions
+    retVal = HpInsert(minHeap, 2);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(minHeap, 7);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(minHeap, 8);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(minHeap, 3);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 2);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 7);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 8);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    retVal = HpInsert(maxHeap, 3);
+    if (0 != retVal)
+    {
+        printf("HpInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    if (6 != HpGetElementCount(maxHeap) || 6 != HpGetElementCount(minHeap))
+    {
+        printf("Invalid element count!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Test structure
+    PCC_VECTOR minVector, maxVector;
+    VecCreate(&minVector);
+    VecCreate(&maxVector);
+    VecInsertTail(minVector, 1);
+    VecInsertTail(minVector, 6);
+    VecInsertTail(minVector, 2);
+    VecInsertTail(minVector, 7);
+    VecInsertTail(minVector, 8);
+    VecInsertTail(minVector, 3);
+    VecInsertTail(maxVector, 8);
+    VecInsertTail(maxVector, 7);
+    VecInsertTail(maxVector, 3);
+    VecInsertTail(maxVector, 1);
+    VecInsertTail(maxVector, 6);
+    VecInsertTail(maxVector, 2);
+
+    for (int i = 0; i < minVector->Count; i++)
+    {
+        if (minHeap->Items->Items[i] != minVector->Items[i])
+        {
+            printf("Invalid minimum heap structure!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+    for (int i = 0; i < maxVector->Count; i++)
+    {
+        if (maxHeap->Items->Items[i] != maxVector->Items[i])
+        {
+            printf("Invalid maximum heap structure!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    //Test HpSortToVector
+    PCC_VECTOR sortedVector;
+    retVal = VecCreate(&sortedVector);
+
+    if (-1 != HpSortToVector(NULL, sortedVector) || -1 != HpSortToVector(minHeap, NULL))
+    {
+        printf("HpSortToVector failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    retVal = HpSortToVector(minHeap, sortedVector);
+    if (0 != retVal)
+    {
+        printf("HpSortToVector failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    for (int i = 0; i < minVector->Count; i++)
+    {
+        if (minHeap->Items->Items[i] != minVector->Items[i])
+        {
+            printf("HpSortToVector failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+    VecSort(minVector);
+    for (int i = 0; i < minVector->Count; i++)
+    {
+        if (sortedVector->Items[i] != minVector->Items[i])
+        {
+            printf("HpSortToVector failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+    VecClear(sortedVector);
+    retVal = HpSortToVector(maxHeap, sortedVector);
+    if (0 != retVal)
+    {
+        printf("HpSortToVector failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    for (int i = 0; i < maxVector->Count; i++)
+    {
+        if (maxHeap->Items->Items[i] != maxVector->Items[i])
+        {
+            printf("HpSortToVector failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+    VecSort(maxVector);
+    for (int i = 0; i < maxVector->Count; i++)
+    {
+        if (sortedVector->Items[i] != maxVector->Items[i])
+        {
+            printf("HpSortToVector failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    //Test HpRemove
+    retVal = HpRemove(minHeap, 7);
+    if (0 != retVal)
+    {
+        printf("HpRemove failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    VecClear(minVector);
+    VecInsertTail(minVector, 1);
+    VecInsertTail(minVector, 3);
+    VecInsertTail(minVector, 2);
+    VecInsertTail(minVector, 6);
+    VecInsertTail(minVector, 8);
+    for (int i = 0; i < minVector->Count; i++)
+    {
+        if (minHeap->Items->Items[i] != minVector->Items[i])
+        {
+            printf("HpRemove failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    retVal = HpRemove(maxHeap, 7);
+    if (0 != retVal)
+    {
+        printf("HpRemove failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    VecClear(maxVector);
+    VecInsertTail(maxVector, 8);
+    VecInsertTail(maxVector, 6);
+    VecInsertTail(maxVector, 3);
+    VecInsertTail(maxVector, 1);
+    VecInsertTail(maxVector, 2);
+    for (int i = 0; i < maxVector->Count; i++)
+    {
+        if (maxHeap->Items->Items[i] != maxVector->Items[i])
+        {
+            printf("HpRemove failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    //Test HpPopExtreme
+    retVal = HpPopExtreme(minHeap, &foundVal);
+    if (0 != retVal)
+    {
+        printf("HpPopExtreme failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != foundVal)
+    {
+        printf("HpPopExtreme failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    retVal = HpPopExtreme(maxHeap, &foundVal);
+    if (0 != retVal)
+    {
+        printf("HpPopExtreme failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (8 != foundVal)
+    {
+        printf("HpPopExtreme failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    VecClear(minVector);
+    VecInsertTail(minVector, 2);
+    VecInsertTail(minVector, 3);
+    VecInsertTail(minVector, 8);
+    VecInsertTail(minVector, 6);
+    for (int i = 0; i < minVector->Count; i++)
+    {
+        if (minHeap->Items->Items[i] != minVector->Items[i])
+        {
+            printf("HpRemove failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    VecClear(maxVector);
+    VecInsertTail(maxVector, 6);
+    VecInsertTail(maxVector, 2);
+    VecInsertTail(maxVector, 3);
+    VecInsertTail(maxVector, 1);
+    for (int i = 0; i < maxVector->Count; i++)
+    {
+        if (maxHeap->Items->Items[i] != maxVector->Items[i])
+        {
+            printf("HpRemove failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
     }
 
 cleanup:
-    if (NULL != usedHeap)
+    if (-1 != HpDestroy(NULL))
     {
-        if (0 != HpDestroy(&usedHeap))
+        printf("HpDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (NULL != minHeap)
+    {
+        if (0 != HpDestroy(&minHeap))
         {
-            printf("HpDestroy failed!\n");
+            printf("HpDestroy failed!: line: %d\n", __LINE__);
+            retVal = -1;
+        }
+    }
+    if (NULL != maxHeap)
+    {
+        if (0 != HpDestroy(&maxHeap))
+        {
+            printf("HpDestroy failed!: line: %d\n", __LINE__);
             retVal = -1;
         }
     }
