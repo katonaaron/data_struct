@@ -1,9 +1,23 @@
 #pragma once
 
+//The hash table is implemented as a dynamic array made of pairs of keys and values.
+
+//The maximal load factor (nr of elements / size of an array), after which the
+//the values of the hashtable will be rehashed
+#define MAX_LOAD_FACTOR 0.5
+
+typedef struct _CC_HASH_TABLE_DATA
+{
+    char *Key;
+    int Value;
+}CC_HASH_TABLE_DATA, *PCC_HASH_TABLE_DATA;
+
 typedef struct _CC_HASH_TABLE { 
     // Members
-    int PlaceHolder; // placeholder to be removed when actual implementation is added
-} CC_HASH_TABLE; 
+    CC_HASH_TABLE_DATA *Data;
+    int Size;
+    int Count;
+} CC_HASH_TABLE, *PCC_HASH_TABLE; 
   
 int HtCreate(CC_HASH_TABLE** HashTable); 
 int HtDestroy(CC_HASH_TABLE** HashTable); 
