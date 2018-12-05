@@ -10,14 +10,13 @@
 
 //The maximal load factor (nr of elements / size of an array), after which the
 //size of the array will be increased and the values of the hashtable will be rehashed
-#define CC_MAX_LOAD_FACTOR 0.5
+#define CC_MAX_LOAD_FACTOR 0.6
 
 //The minimal load factor (nr of elements / size of an array), after which the
 //size of the array will be decreased and the values of the hashtable will be rehashed
-#define CC_MIN_LOAD_FACTOR 0.25
+#define CC_MIN_LOAD_FACTOR 0.2
 
-typedef struct _CC_HASH_TABLE_DATA
-{
+typedef struct _CC_HASH_TABLE_DATA {
     char *Key;
     int Value;
 }CC_HASH_TABLE_DATA, *PCC_HASH_TABLE_DATA;
