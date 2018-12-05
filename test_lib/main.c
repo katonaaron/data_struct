@@ -4,6 +4,7 @@
 #include "cchashtable.h"
 #include "ccheap.h"
 #include "cctree.h"
+#include <string.h>
 
 int TestVector();
 int TestStack();
@@ -195,6 +196,7 @@ int TestHashTable()
 {
     int retVal = -1;
     int foundVal = -1;
+    char *foundKey = NULL;
     CC_HASH_TABLE* usedTable = NULL;
 
     retVal = HtCreate(&usedTable);
@@ -232,6 +234,32 @@ int TestHashTable()
         goto cleanup;
     }
 
+    retVal = HtGetNthKey(usedTable, 0, &foundKey);
+    if (0 != retVal)
+    {
+        printf("HtGetNthKey failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (0 != strcmp("mere", foundKey))
+    {
+        printf("Invalid key after get!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    retVal = HtRemoveKey(usedTable, "mere");
+    if (0 != retVal)
+    {
+        printf("HtRemoveKey failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    
+    if (0 != HtGetKeyCount(usedTable))
+    {
+        printf("Invalid answer to HtGetKeyCount!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
 cleanup:
     if (NULL != usedTable)
     {
