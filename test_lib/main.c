@@ -86,6 +86,22 @@ int TestTree()
         goto cleanup;
     }
 
+    //Structure Test
+
+    int nodes[] = { 43, 18, 22, 9, 21, 6, 8, 20, 63, 50, 62, 51, 6 };
+
+    for (int i = 0; i < 13; i++)
+    {
+        retVal = TreeInsert(usedTree, nodes[i]);
+        if (0 != retVal)
+        {
+            printf("TreeInsert failed!: line: %d\n", __LINE__);
+            goto cleanup;
+        }
+    }
+
+
+    //End Structure Test
     retVal = TreeInsert(usedTree, 20);
     if (0 != retVal)
     {
