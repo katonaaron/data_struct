@@ -1,18 +1,13 @@
 #pragma once
 
-//The Red-Black tree algorithm is used for this data structure.
+//This data structure implements an AVL tree
 
-//Two constants define the color of the node
-typedef enum _CC_TREE_NODE_COLOR {
-    BLACK,
-    RED
-} CC_TREE_NODE_COLOR;
 
 //Node of the tree
 typedef struct _CC_TREE_NODE {
     struct _CC_TREE_NODE *Parent, *Left, *Right;
     int Value;
-    CC_TREE_NODE_COLOR Color;
+    int Height;
 } CC_TREE_NODE, *PCC_TREE_NODE;
 
 typedef struct _CC_TREE {
