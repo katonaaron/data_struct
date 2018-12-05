@@ -10,8 +10,18 @@ static int HtResize(CC_HASH_TABLE *HashTable, int Up);
 //HtHash generates a hash for a given key
 static int HtHash(char *Key);
 
+//Compares two keys alphabetically
+//Returns:
+//  <0:	the first character that does not match has a lower value in Key1 than in Key2
+//  0:	the contents of both strings are equal
+//  >0:	the first character that does not match has a greater value in Key1 than in Key2
+static int HtKeyCompare(char *Key1, char *Key2);
+
 //HtIsPrime determines if a given number is a prime number
 static int HtIsPrime(int Number);
+
+//HtNextPrime returns the smallest prime number that is greater than the given number
+static int HtNextPrime(int Number);
 
 int HtCreate(CC_HASH_TABLE** HashTable)
 {
@@ -57,7 +67,12 @@ int HtSetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int Value)
         return -1;
     }
 
-    if (0 == HashTable->Size || (HashTable->Count + 1) / HashTable->Size > CC_MAX_LOAD_FACTOR) {
+    if (0 != HtHasKey(HashTable, Key))
+    {
+        return -1;
+    }
+
+    if (0 == HashTable->Size || (HashTable->Count + 1.0) / HashTable->Size > CC_MAX_LOAD_FACTOR) {
         if (-1 == HtResize(HashTable, 1))
         {
             return -1;
@@ -81,9 +96,22 @@ int HtSetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int Value)
 
 int HtGetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int *Value)
 {
-    CC_UNREFERENCED_PARAMETER(HashTable);
-    CC_UNREFERENCED_PARAMETER(Key);
-    CC_UNREFERENCED_PARAMETER(Value);
+    if (NULL == HashTable || NULL == Key)
+    {
+        return -1;
+    }
+
+    int hash = HtHash(Key);
+    int index = hash % HashTable->Size;
+
+    for (int i = 0; NULL != HashTable->Data[index].Key || 0 != HashTable->Data[index].Value; i++)
+    {
+        if (NULL != HashTable->Data[index].Key && 0 == HtKeyCompare(HashTable->Data[index].Key, Key))
+        {
+            return HashTable->Data[index].Value;
+        }
+        index = (hash + i * i) % HashTable->Size;
+    }
     return -1;
 }
 
@@ -96,9 +124,23 @@ int HtRemoveKey(CC_HASH_TABLE* HashTable, char* Key)
 
 int HtHasKey(CC_HASH_TABLE* HashTable, char* Key)
 {
-    CC_UNREFERENCED_PARAMETER(HashTable);
-    CC_UNREFERENCED_PARAMETER(Key);
-    return -1;
+    if (NULL == HashTable || NULL == Key)
+    {
+        return -1;
+    }
+
+    int hash = HtHash(Key);
+    int index = hash % HashTable->Size;
+
+    for (int i = 0; NULL != HashTable->Data[index].Key || 0 != HashTable->Data[index].Value; i++)
+    {
+        if (NULL != HashTable->Data[index].Key && 0 == HtKeyCompare(HashTable->Data[index].Key, Key))
+        {
+            return 1;
+        }
+        index = (hash + i * i) % HashTable->Size;
+    }
+    return 0;
 }
 
 int HtGetNthKey(CC_HASH_TABLE* HashTable, int Index, char** Key)
@@ -136,12 +178,80 @@ int HtGetKeyCount(CC_HASH_TABLE* HashTable)
 
 static int HtResize(CC_HASH_TABLE *HashTable, int Up)
 {
-    return -1;
+    int newSize;
+
+    if (Up)
+    {
+        if (0 == HashTable->Size)
+        {
+            newSize = 2;
+        } 
+        else 
+        {
+            newSize = HtNextPrime(HashTable->Size * 2);
+        }
+    }
+    else
+    {
+        if (2 == HashTable->Size)
+        {
+            return HtClear(HashTable);
+        }
+        else
+        {
+            newSize = HtNextPrime(HashTable->Size / 2);
+        }
+    }
+
+    PCC_HASH_TABLE_DATA data = (PCC_HASH_TABLE_DATA)calloc(newSize, sizeof(CC_HASH_TABLE_DATA)), dataOld;
+
+    if (NULL == data)
+    {
+        return -1;
+    }
+
+    dataOld = HashTable->Data;
+    HashTable->Data = data;
+
+    int count = 0;
+    for (int i = 0; i < HashTable->Size && count < HashTable->Count; i++)
+    {
+        if (NULL != dataOld[i].Key)
+        {
+            if (0 != HtSetKeyValue(HashTable, dataOld[i].Key, dataOld[i].Value))
+            {
+                free(data);
+                HashTable->Data = dataOld;
+                return -1;
+            }
+            count++;
+        }
+    }
+
+    HashTable->Size = newSize;
+
+    return 0;
 }
 
 static int HtHash(char *Key)
 {
     return -1;
+}
+
+int HtKeyCompare(char * Key1, char * Key2)
+{
+    for (char *i = Key1; *i; i++)
+    {
+        if (*i > *(Key2 + (i - Key1)))
+        {
+            return 1;
+        }
+        else if (*i < *(Key2 + (i - Key1)))
+        {
+            return -1;
+        }
+    }
+    return 0;
 }
 
 static int HtIsPrime(int Number)
@@ -166,4 +276,14 @@ static int HtIsPrime(int Number)
     }
 
     return 1;
+}
+
+int HtNextPrime(int Number)
+{
+    while (!HtIsPrime(Number))
+    {
+        Number++;
+    }
+
+    return Number;
 }
