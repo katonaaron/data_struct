@@ -1,12 +1,20 @@
 #pragma once
 
 //The hash table is implemented as a dynamic array made of pairs of keys and values.
-//Quadratic Probing is used. If the Key pointer of an element of the hashtable is NULL,
-//  we consider it as an empty cell.
+//Quadratic Probing is used. The elements of the array have the following property: 
+//  if(NULL == Key)
+//      if(0 == Value)
+//          empty slot
+//      else
+//          deleted slot
 
 //The maximal load factor (nr of elements / size of an array), after which the
-//the values of the hashtable will be rehashed
+//size of the array will be increased and the values of the hashtable will be rehashed
 #define CC_MAX_LOAD_FACTOR 0.5
+
+//The minimal load factor (nr of elements / size of an array), after which the
+//size of the array will be decreased and the values of the hashtable will be rehashed
+#define CC_MIN_LOAD_FACTOR 0.25
 
 typedef struct _CC_HASH_TABLE_DATA
 {
