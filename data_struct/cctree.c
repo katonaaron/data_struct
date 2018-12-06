@@ -9,7 +9,7 @@ static int TreeDestroyNode(CC_TREE_NODE **Node, int Recursively);
 static int TreeRemoveNode(CC_TREE *Tree, CC_TREE_NODE *Node);
 
 //TreeGetMinNode gives the Node parameter the address of the node with the value = Value, from the 
-//subtree given by the Root node.
+//subtree given by the Root node. If the node wasn't found, NULL will be the output.
 static int TreeFindNode(CC_TREE_NODE *Root, int Value, CC_TREE_NODE **Node);
 
 //TreeGetHeight returns the height of the (sub)tree where Node is the root
@@ -43,7 +43,7 @@ int TreeCreate(CC_TREE **Tree)
         return -1;
     }
 
-    PCC_TREE tree = malloc(sizeof(CC_TREE));
+    PCC_TREE tree = (PCC_TREE)malloc(sizeof(CC_TREE));
 
     if (NULL == tree)
     {
@@ -86,7 +86,7 @@ int TreeInsert(CC_TREE *Tree, int Value)
         return -1;
     }
 
-    PCC_TREE_NODE node;
+    PCC_TREE_NODE node = NULL;
     PCC_TREE_NODE it = Tree->Root;  //iterator
 
     if (0 != TreeCreateNode(&node, Value))
@@ -255,7 +255,7 @@ static int TreeCreateNode(CC_TREE_NODE **Node, int Value)
         return -1;
     }
 
-    PCC_TREE_NODE node = malloc(sizeof(CC_TREE_NODE));
+    PCC_TREE_NODE node = (PCC_TREE_NODE)malloc(sizeof(CC_TREE_NODE));
 
     if (NULL == node)
     {
