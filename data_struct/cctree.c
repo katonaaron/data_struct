@@ -36,6 +36,11 @@ static int TreeGetBalanceFactor(CC_TREE_NODE *Node);
 //Returns the maximum of the given 2 integers
 static int Max(int Num1, int Num2);
 
+//Pre-, In-, and Postorder search for the N-th value
+static int TreeNodeGetNthPreorder(CC_TREE_NODE *Node, int *Index, int *Value);
+static int TreeNodeGetNthInorder(CC_TREE_NODE *Node, int *Index, int *Value);
+static int TreeNodeGetNthPostorder(CC_TREE_NODE *Node, int *Index, int *Value);
+
 int TreeCreate(CC_TREE **Tree)
 {
     if (NULL == Tree)
@@ -171,9 +176,23 @@ int TreeRemove(CC_TREE *Tree, int Value)
 
 int TreeContains(CC_TREE *Tree, int Value)
 {
-    CC_UNREFERENCED_PARAMETER(Tree);
-    CC_UNREFERENCED_PARAMETER(Value);
-    return -1;
+    if (NULL == Tree)
+    {
+        return -1;
+    }
+
+    PCC_TREE_NODE node = NULL;
+    if (0 != TreeFindNode(Tree->Root, Value, &node))
+    {
+        return -1;
+    }
+
+    if (NULL == node)
+    {
+        return 0;
+    }
+
+    return 1;
 }
 
 int TreeGetCount(CC_TREE *Tree)
@@ -198,54 +217,46 @@ int TreeGetHeight(CC_TREE *Tree)
 
 int TreeClear(CC_TREE *Tree)
 {
-    CC_UNREFERENCED_PARAMETER(Tree);
-    return -1;
-}
-
-static void TreeTemporaryPreorder(CC_TREE_NODE *Node, int *Index, int *Value)
-{
-    if (*Index == 0)
-    {
-        *Value = Node->Value;
-        return;
-    }
-    if (Index > 0 && NULL != Node->Left)
-    {
-        (*Index)--;
-        TreeTemporaryPreorder(Node->Left, Index, Value);
-    }
-    if (Index > 0 && NULL != Node->Right)
-    {
-        (*Index)--;
-        TreeTemporaryPreorder(Node->Right, Index, Value);
-    }
-}
-
-int TreeGetNthPreorder(CC_TREE *Tree, int Index, int *Value)
-{
-    if (NULL == Tree || NULL == Value || Index < 0 || Index >= Tree->Count)
+    if (NULL == Tree)
     {
         return -1;
     }
 
-    TreeTemporaryPreorder(Tree->Root, &Index, Value);
-    return 0;
+    Tree->Count = 0;
+
+    if (NULL == Tree->Root)
+    {
+        return 0;
+    }
+
+    return TreeDestroyNode(&Tree->Root, 1);
+}
+
+int TreeGetNthPreorder(CC_TREE *Tree, int Index, int *Value)
+{
+    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    {
+        return -1;
+    }   
+    return TreeNodeGetNthPreorder(Tree->Root, &Index, Value);
 }
 
 int TreeGetNthInorder(CC_TREE *Tree, int Index, int *Value)
 {
-    CC_UNREFERENCED_PARAMETER(Tree);
-    CC_UNREFERENCED_PARAMETER(Index);
-    CC_UNREFERENCED_PARAMETER(Value);
-    return -1;
+    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    {
+        return -1;
+    }
+    return TreeNodeGetNthInorder(Tree->Root, &Index, Value);
 }
 
 int TreeGetNthPostorder(CC_TREE *Tree, int Index, int *Value)
 {
-    CC_UNREFERENCED_PARAMETER(Tree);
-    CC_UNREFERENCED_PARAMETER(Index);
-    CC_UNREFERENCED_PARAMETER(Value);
-    return -1;
+    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    {
+        return -1;
+    }
+    return TreeNodeGetNthPostorder(Tree->Root, &Index, Value);
 }
 
 static int TreeCreateNode(CC_TREE_NODE **Node, int Value)
@@ -273,14 +284,14 @@ static int TreeCreateNode(CC_TREE_NODE **Node, int Value)
     return 0;
 }
 
-int TreeDestroyNode(CC_TREE_NODE **Node, int Recursively)
+static int TreeDestroyNode(CC_TREE_NODE **Node, int Recursively)
 {
     if (NULL == Node)
     {
         return -1;
     }
 
-    if (Recursively)
+    if (Recursively && NULL != *Node)
     {
         PCC_TREE_NODE node = *Node;
 
@@ -301,7 +312,7 @@ int TreeDestroyNode(CC_TREE_NODE **Node, int Recursively)
     return 0;
 }
 
-int TreeRemoveNode(CC_TREE *Tree, CC_TREE_NODE *Node)
+static int TreeRemoveNode(CC_TREE *Tree, CC_TREE_NODE *Node)
 {
     if (NULL == Node || NULL == Tree)
     {
@@ -371,7 +382,7 @@ int TreeRemoveNode(CC_TREE *Tree, CC_TREE_NODE *Node)
     return 0;
 }
 
-int TreeFindNode(CC_TREE_NODE *Root, int Value, CC_TREE_NODE ** Node)
+static int TreeFindNode(CC_TREE_NODE *Root, int Value, CC_TREE_NODE ** Node)
 {
     if (NULL == Root || NULL == Node)
     {
@@ -401,7 +412,7 @@ int TreeFindNode(CC_TREE_NODE *Root, int Value, CC_TREE_NODE ** Node)
     return 0;
 }
 
-int TreeGetNodeHeight(CC_TREE_NODE *Node)
+static int TreeGetNodeHeight(CC_TREE_NODE *Node)
 {
     if (NULL == Node)
     {
@@ -410,7 +421,7 @@ int TreeGetNodeHeight(CC_TREE_NODE *Node)
     return Node->Height;
 }
 
-int TreeGetMinNode(CC_TREE_NODE * Root, CC_TREE_NODE ** Node)
+static int TreeGetMinNode(CC_TREE_NODE * Root, CC_TREE_NODE ** Node)
 {
     if (NULL == Root || NULL == Node)
     {
@@ -569,7 +580,7 @@ static int TreeBalance(CC_TREE *Tree, CC_TREE_NODE *Node)
     return 0;
 }
 
-int TreeGetBalanceFactor(CC_TREE_NODE * Node)
+static int TreeGetBalanceFactor(CC_TREE_NODE * Node)
 {
     return TreeGetNodeHeight(Node->Left) - TreeGetNodeHeight(Node->Right);
 }
@@ -577,4 +588,95 @@ int TreeGetBalanceFactor(CC_TREE_NODE * Node)
 static int Max(int Num1, int Num2)
 {
     return Num1 > Num2 ? Num1 : Num2;
+}
+
+static int TreeNodeGetNthPreorder(CC_TREE_NODE *Node, int *Index, int *Value)
+{
+    if (NULL == Node || NULL == Value)
+    {
+        return -1;
+    }
+
+    (*Index)--;
+    if (!(*Index))
+    {
+        *Value = Node->Value;
+    }
+    if (*Index && NULL != Node->Left)
+    {
+        if (0 != TreeNodeGetNthPreorder(Node->Left, Index, Value))
+        {
+            return -1;
+        }
+    }
+    if (*Index && NULL != Node->Right)
+    {
+        if (0 != TreeNodeGetNthPreorder(Node->Right, Index, Value))
+        {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static int TreeNodeGetNthInorder(CC_TREE_NODE *Node, int *Index, int *Value)
+{
+    if (NULL == Node || NULL == Value)
+    {
+        return -1;
+    }
+
+    if (*Index && NULL != Node->Left)
+    {
+        if (0 != TreeNodeGetNthInorder(Node->Left, Index, Value))
+        {
+            return -1;
+        }
+    }
+
+    (*Index)--;
+    if (!(*Index))
+    {
+        *Value = Node->Value;
+    }
+
+    if (*Index && NULL != Node->Right)
+    {
+        if (0 != TreeNodeGetNthInorder(Node->Right, Index, Value))
+        {
+            return -1;
+        }
+    }
+    return 0;
+}
+
+static int TreeNodeGetNthPostorder(CC_TREE_NODE *Node, int *Index, int *Value)
+{
+    if (NULL == Node || NULL == Value)
+    {
+        return -1;
+    }
+
+    if (*Index && NULL != Node->Left)
+    {
+        if (0 != TreeNodeGetNthPostorder(Node->Left, Index, Value))
+        {
+            return -1;
+        }
+    }
+
+    if (*Index && NULL != Node->Right)
+    {
+        if (0 != TreeNodeGetNthPostorder(Node->Right, Index, Value))
+        {
+            return -1;
+        }
+    }
+
+    (*Index)--;
+    if (!(*Index))
+    {
+        *Value = Node->Value;
+    }
+    return 0;
 }
