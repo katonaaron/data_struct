@@ -1,3 +1,5 @@
+#define _CRTDBG_MAP_ALLOC  
+#include <crtdbg.h>  
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +19,15 @@ void RunTests();
 
 int main(void)
 {
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
     RunTests();
+    _CrtDumpMemoryLeaks();
     return 0;
 }
 
@@ -36,7 +46,7 @@ void RunTests()
         printf("Vector test failed\n\n");
     }
 
-    if (0 == TestStack())
+    /*if (0 == TestStack())
     {
         printf("Stack test passed\n\n");
     }
@@ -52,7 +62,7 @@ void RunTests()
     else
     {
         printf("HashTable test failed\n\n");
-    }
+    }*/
 
     if (0 == TestHeap())
     {
@@ -91,7 +101,7 @@ int TestTree()
 
     int nodes[] = { 43, 18, 22, 9, 21, 6, 8, 20, 63, 50, 62, 51, 8 };
 
-    for (int i = 0; i < 13; i++)
+    for (int i = 0; i < 12; i++)
     {
         retVal = TreeInsert(usedTree, nodes[i]);
         if (0 != retVal)
@@ -581,6 +591,22 @@ cleanup:
             retVal = -1;
         }
     }
+    if (0 != VecDestroy(&minVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != VecDestroy(&maxVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != VecDestroy(&sortedVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+
     return retVal;
 }
 
