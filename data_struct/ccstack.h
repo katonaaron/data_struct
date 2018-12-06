@@ -7,7 +7,7 @@
 typedef struct _CC_STACK{ 
     // Members
     CC_VECTOR *Items;
-} CC_STACK; 
+} CC_STACK, *PCC_STACK; 
   
 int StCreate(CC_STACK **Stack);
 int StDestroy(CC_STACK **Stack);
