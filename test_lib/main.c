@@ -77,6 +77,7 @@ void RunTests()
 int TestTree()
 {
     int retVal = -1;
+    int foundVal;
     CC_TREE* usedTree = NULL;
 
     retVal = TreeCreate(&usedTree);
@@ -88,7 +89,7 @@ int TestTree()
 
     //Structure Test
 
-    int nodes[] = { 43, 18, 22, 9, 21, 6, 8, 20, 63, 50, 62, 51, 6 };
+    int nodes[] = { 43, 18, 22, 9, 21, 6, 8, 20, 63, 50, 62, 51, 8 };
 
     for (int i = 0; i < 13; i++)
     {
@@ -100,9 +101,41 @@ int TestTree()
         }
     }
 
+    printf("Tree: ");
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
+    {
+        if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        printf("%d ", foundVal);
+    }
+    printf("\n");
+
+    retVal = TreeRemove(usedTree, 8);
+    if (0 != retVal)
+    {
+        printf("TreeRemove failed!\n");
+        goto cleanup;
+    }
+
+    printf("Tree: ");
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
+    {
+        if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        printf("%d ", foundVal);
+    }
+    printf("\n");
 
     //End Structure Test
-    retVal = TreeInsert(usedTree, 20);
+    /*retVal = TreeInsert(usedTree, 20);
     if (0 != retVal)
     {
         printf("TreeInsert failed!\n");
@@ -135,7 +168,7 @@ int TestTree()
         printf("TreeGetCount invalid return value!\n");
         retVal = -1;
         goto cleanup;
-    }
+    }*/
 
 cleanup:
     if (NULL != usedTree)
