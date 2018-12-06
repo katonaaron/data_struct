@@ -1,10 +1,13 @@
+#define _CRTDBG_MAP_ALLOC  
+#include <crtdbg.h>  
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "ccvector.h"
 #include "ccstack.h"
 #include "cchashtable.h"
 #include "ccheap.h"
 #include "cctree.h"
-#include <string.h>
 
 int TestVector();
 int TestStack();
@@ -16,7 +19,15 @@ void RunTests();
 
 int main(void)
 {
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
     RunTests();
+    _CrtDumpMemoryLeaks();
     return 0;
 }
 
@@ -131,7 +142,7 @@ cleanup:
     }
     return retVal;
 }
-              
+
 int TestHeap()
 {
     int retVal = -1;
@@ -234,7 +245,7 @@ int TestHashTable()
         goto cleanup;
     }
 
-    retVal = HtGetNthKey(usedTable, 0, &foundKey);
+    retVal = HtGetNthKey(usedTable, 1, &foundKey);
     if (0 != retVal)
     {
         printf("HtGetNthKey failed!: line: %d\n", __LINE__);
@@ -253,13 +264,53 @@ int TestHashTable()
         printf("HtRemoveKey failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-    
+
     if (0 != HtGetKeyCount(usedTable))
     {
         printf("Invalid answer to HtGetKeyCount!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
+
+    char keys[8][10] = {"a", "b", "c", "d", "alma", "perec", "kovacs", "peter12"};
+    int values[] = { 1, 2, 3, 4, 123, 23423, 123, 123 }, size;
+
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (0 != HtSetKeyValue(usedTable, keys[i], values[i]))
+        {
+            printf("HtSetKeyValue failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+    size = HtGetKeyCount(usedTable);
+    if (size < 0)
+    {
+        printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    printf("Hash Table: ");
+    for (int i = 1; i <= size; i++)
+    {
+        if (0 != HtGetNthKey(usedTable, i, &foundKey))
+        {
+            printf("HtGetNthKey failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        if (0 != HtGetKeyValue(usedTable, foundKey, &foundVal))
+        {
+            printf("HtGetNthValue failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        printf("%s(%d) ", foundKey, foundVal);
+    }
+    printf("\n");
+
 cleanup:
     if (NULL != usedTable)
     {
@@ -330,7 +381,7 @@ int TestVector()
     int retVal = -1;
     int foundVal = 0;
     CC_VECTOR* usedVector = NULL;
-    
+
     retVal = VecCreate(&usedVector);
     if (0 != retVal)
     {
