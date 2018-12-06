@@ -1,8 +1,12 @@
 #pragma once
 
+#include "ccvector.h"
+
+//Stack is implemented as a vector with limited operations
+
 typedef struct _CC_STACK{ 
     // Members
-    int PlaceHolder; // placeholder to be removed when actual implementation is added
+    CC_VECTOR *Items;
 } CC_STACK; 
   
 int StCreate(CC_STACK **Stack);
