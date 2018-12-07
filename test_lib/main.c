@@ -17,6 +17,8 @@ int TestTree();
 
 void RunTests();
 
+int FindKey(char *Keys[], int Size, char *Key);
+
 int main(void)
 {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
@@ -210,42 +212,132 @@ int TestHashTable()
     char *foundKey = NULL;
     CC_HASH_TABLE* usedTable = NULL;
 
+    //HtCreate Test
     retVal = HtCreate(&usedTable);
     if (0 != retVal)
     {
-        printf("HtCreate failed!\n");
+        printf("HtCreate failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != HtCreate(NULL))
+    {
+        printf("HtCreate failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
+    //HtHasKey test #1
+    retVal = HtHasKey(usedTable, "mere");
+    if (0 != retVal)
+    {
+        printf("HtHasKey failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    //HtClear test #1
+    retVal = HtClear(usedTable);
+    if (0 != retVal)
+    {
+        printf("HtClear failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != HtClear(NULL))
+    {
+        printf("HtClear failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //HtGetKeyCount test
+    retVal = HtGetKeyCount(usedTable);
+    if (0 != retVal)
+    {
+        printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != HtGetKeyCount(NULL))
+    {
+        printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //HtRemoveKey test #1
+    retVal = HtRemoveKey(usedTable, "mere");
+    if (-1 != retVal)
+    {
+        printf("HtRemoveKey failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    //HtGetKeyValue test #1
+    retVal = HtGetKeyValue(usedTable, "mere", &foundVal);
+    if (-1 != retVal)
+    {
+        printf("HtGetKeyValue failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    //HtSetKeyValue Test
     retVal = HtSetKeyValue(usedTable, "mere", 20);
     if (0 != retVal)
     {
-        printf("HtSetKeyValue failed!\n");
+        printf("HtSetKeyValue failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (1 != HtHasKey(usedTable, "mere"))
+    if (-1 != HtSetKeyValue(NULL, "pere", 10) || -1 != HtSetKeyValue(usedTable, NULL, 10)
+        || -1 != HtSetKeyValue(usedTable, "mere", 10))
     {
-        printf("Invalid answer to HtHasKey!\n");
+        printf("HtSetKeyValue failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
+    //Get key count, check if has key #1
+    if (1 != HtGetKeyCount(usedTable))
+    {
+        printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != HtHasKey(usedTable, "mere") || 0 != HtHasKey(usedTable, "pere"))
+    {
+        printf("HtHasKey failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //HtHasKey test #2
+    if (-1 != HtHasKey(NULL, "mere") || -1 != HtHasKey(usedTable, NULL))
+    {
+        printf("HtHasKey failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //HtGetKeyValue test #2
     retVal = HtGetKeyValue(usedTable, "mere", &foundVal);
     if (0 != retVal)
     {
-        printf("HtGetKeyValue failed!\n");
+        printf("HtGetKeyValue failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (foundVal != 20)
+    if (20 != foundVal)
     {
-        printf("Invalid value after get!\n");
+        printf("HtGetKeyValue failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != HtGetKeyValue(NULL, "mere", &foundVal) || -1 != HtGetKeyValue(usedTable, NULL, &foundVal)
+        || -1 != HtGetKeyValue(usedTable, "mere", NULL))
+    {
+        printf("HtGetKeyValue failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = HtGetNthKey(usedTable, 1, &foundKey);
+    //HtGetNthKey test
+    retVal = HtGetNthKey(usedTable, 0, &foundKey);
     if (0 != retVal)
     {
         printf("HtGetNthKey failed!: line: %d\n", __LINE__);
@@ -253,28 +345,56 @@ int TestHashTable()
     }
     if (0 != strcmp("mere", foundKey))
     {
-        printf("Invalid key after get!: line: %d\n", __LINE__);
+        printf("Invalid key after HtGetNthKey!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != HtGetNthKey(NULL, 0, &foundKey) || -1 != HtGetNthKey(usedTable, 0, NULL)
+        || -1 != HtGetNthKey(usedTable, -1, &foundKey) || -1 != HtGetNthKey(usedTable, 1, &foundKey))
+    {
+        printf("HtGetNthKey failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
+    //HtRemoveKey test #1
+    if (-1 != HtRemoveKey(usedTable, "cartofi"))
+    {
+        printf("HtRemoveKey failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
     retVal = HtRemoveKey(usedTable, "mere");
     if (0 != retVal)
     {
         printf("HtRemoveKey failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (0 != HtGetKeyCount(usedTable))
+    if (-1 != HtRemoveKey(usedTable, NULL) || -1 != HtRemoveKey(NULL, "mere"))
     {
-        printf("Invalid answer to HtGetKeyCount!: line: %d\n", __LINE__);
+        printf("HtRemoveKey failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    char keys[8][10] = {"a", "b", "c", "d", "alma", "perec", "kovacs", "peter12"};
-    int values[] = { 1, 2, 3, 4, 123, 23423, 123, 123 }, size;
+    //Get key count, check if has key #2
+    if (0 != HtGetKeyCount(usedTable))
+    {
+        printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != HtHasKey(usedTable, "mere"))
+    {
+        printf("HtHasKey failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
 
+    //STRUCTURE TEST
+    //Insert key-value pairs in order to test the structure
+    char *keys[] = { "a", "b", "c", "d", "apple", "cat", "dog", "deoxyribonucleic acid" };
+    int values[] = { 1, 2, 3, 4, 123, 23423, 123, 12361273 };
 
     for (int i = 0; i < 8; i++)
     {
@@ -285,15 +405,24 @@ int TestHashTable()
             goto cleanup;
         }
     }
-    size = HtGetKeyCount(usedTable);
-    if (size < 0)
+
+    //Get key count, check if has key #3
+    if (8 != HtGetKeyCount(usedTable))
     {
         printf("HtGetKeyCount failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
-    printf("Hash Table: ");
-    for (int i = 1; i <= size; i++)
+    if (1 != HtHasKey(usedTable, "deoxyribonucleic acid"))
+    {
+        printf("HtHasKey failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Check if every key-value pair are present
+    int freq[8] = { 0 }, index;
+    for (int i = 0; i < HtGetKeyCount(usedTable); i++)
     {
         if (0 != HtGetNthKey(usedTable, i, &foundKey))
         {
@@ -307,19 +436,55 @@ int TestHashTable()
             retVal = -1;
             goto cleanup;
         }
-        printf("%s(%d) ", foundKey, foundVal);
+        index = FindKey(keys, 8, foundKey);
+        if (index == -1 || values[index] != foundVal || 0 != strcmp(keys[index], foundKey))
+        {
+            printf("HtGetNthValue or HtGetNthKey failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        freq[i]++;
     }
-    printf("\n");
+    for (int i = 0; i < 8; i++)
+    {
+        if (1 != freq[i])
+        {
+            printf("Structure test failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
 
 cleanup:
+    if (-1 != HtDestroy(NULL))
+    {
+        printf("HtDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
     if (NULL != usedTable)
     {
         if (0 != HtDestroy(&usedTable))
         {
-            printf("HtDestroy failed!\n");
+            printf("HtDestroy failed!: line: %d\n", __LINE__);
             retVal = -1;
         }
     }
+    if (NULL != usedTable)
+    {
+        printf("HtDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != HtCreate(&usedTable))
+    {
+        printf("HtCreate failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != HtDestroy(&usedTable))
+    {
+        printf("HtDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+
     return retVal;
 }
 
@@ -462,4 +627,24 @@ cleanup:
         }
     }
     return retVal;
+}
+
+int FindKey(char *Keys[], int Size, char *Key)
+{
+    if (Size < 1 || NULL == Keys || NULL == Key)
+    {
+        return -1;
+    }
+    for (int i = 0; i < Size; i++)
+    {
+        if (NULL == Keys[i])
+        {
+            return -1;
+        }
+        if (0 == strcmp(Key, Keys[i]))
+        {
+            return i;
+        }
+    }
+    return -1;
 }
