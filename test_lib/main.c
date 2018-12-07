@@ -104,9 +104,140 @@ int TestTree()
         goto cleanup;
     }
 
-    //Structure Test
+    //Get count, height and see if it contains #1
+    if (0 != TreeGetCount(usedTree))
+    {
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeContains(usedTree, 10))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
 
+    //TreeInsert Test
+    retVal = TreeInsert(usedTree, 10);
+    if (0 != retVal)
+    {
+        printf("TreeInsert failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != TreeInsert(NULL, 10))
+    {
+        printf("TreeInsert failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Get count, height and see if it contains #2
+    if (1 != TreeGetCount(usedTree))
+    {
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != TreeContains(usedTree, 10))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeRemove test
+    retVal = TreeRemove(usedTree, 10);
+    if (0 != retVal)
+    {
+        printf("TreeRemove failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != TreeRemove(NULL, 10))
+    {
+        printf("TreeRemove failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Get count, height and see if it contains #3
+    if (0 != TreeGetCount(usedTree))
+    {
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeContains(usedTree, 10))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeContains Test
+    if (-1 != TreeContains(NULL, 10))
+    {
+        printf("TreeContains failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeGetCount Test
+    if (-1 != TreeGetCount(NULL))
+    {
+        printf("TreeGetCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeGetHeight Test
+    if (-1 != TreeGetHeight(NULL))
+    {
+        printf("TreeGetHeight failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeClear Test #1
+    retVal = TreeClear(usedTree);
+    if (0 != retVal)
+    {
+        printf("TreeClear failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != TreeClear(NULL))
+    {
+        printf("TreeClear failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //STRUCTURE TEST
+    //Insert nodes to test the structure
     int nodes[] = { 43, 18, 22, 9, 21, 6, 8, 20, 63, 50, 62, 51, 8 };
+    int preorder[] = { 22, 18, 8, 6, 8, 9, 21, 20, 50, 43, 62, 51, 63 };
+    int inorder[] = { 6, 8, 8, 9, 18, 20, 21, 22, 43, 50, 51, 62, 63 };
+    int postorder[] = { 8, 6, 9, 8, 20, 21, 18, 43, 51, 63, 62, 50, 22 };
+    int firstdelete[] = { 22, 18, 9, 6, 21, 20, 50, 43, 62, 51, 63 };
+    int seconddelete[] = { 43, 18, 9, 6, 21, 20, 62, 50, 51, 63 };
 
     for (int i = 0; i < 13; i++)
     {
@@ -118,7 +249,27 @@ int TestTree()
         }
     }
 
-    printf("Preorder: ");
+    //Get count, height and see if it contains #4
+    if (13 != TreeGetCount(usedTree))
+    {
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (4 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != TreeContains(usedTree, 8))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //TreeGetNth(Pre/In/Post)order test
     for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
@@ -127,42 +278,68 @@ int TestTree()
             retVal = -1;
             goto cleanup;
         }
-        printf("%d ", foundVal);
-    }
-    printf("\n");
-    printf("Inorder: ");
-    for (int i = 0; i < TreeGetCount(usedTree); i++)
-    {
+        if (foundVal != preorder[i])
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
         if (0 != TreeGetNthInorder(usedTree, i, &foundVal))
         {
             printf("TreeGetNthInorder failed!: line: %d\n", __LINE__);
             retVal = -1;
             goto cleanup;
         }
-        printf("%d ", foundVal);
-    }
-    printf("\n");
-    printf("Postorder: ");
-    for (int i = 0; i < TreeGetCount(usedTree); i++)
-    {
+        if (foundVal != inorder[i])
+        {
+            printf("TreeGetNthInorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
         if (0 != TreeGetNthPostorder(usedTree, i, &foundVal))
         {
             printf("TreeGetNthPostorder failed!: line: %d\n", __LINE__);
             retVal = -1;
             goto cleanup;
         }
-        printf("%d ", foundVal);
+        if (foundVal != postorder[i])
+        {
+            printf("TreeGetNthPostorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
     }
-    printf("\n");
 
-    retVal = TreeRemove(usedTree, 8);
-    if (0 != retVal)
+    //TreeGetNth(Pre/In/Post)order Test
+    if (-1 != TreeGetNthPreorder(NULL, 0, &foundVal) || -1 != TreeGetNthPreorder(usedTree, 0, NULL)
+        || -1 != TreeGetNthPreorder(usedTree, -1, &foundVal) || -1 != TreeGetNthPreorder(usedTree, 13, &foundVal))
     {
-        printf("TreeRemove failed!\n");
+        printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != TreeGetNthInorder(NULL, 0, &foundVal) || -1 != TreeGetNthInorder(usedTree, 0, NULL)
+        || -1 != TreeGetNthInorder(usedTree, -1, &foundVal) || -1 != TreeGetNthInorder(usedTree, 13, &foundVal))
+    {
+        printf("TreeGetNthInorder failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != TreeGetNthPostorder(NULL, 0, &foundVal) || -1 != TreeGetNthPostorder(usedTree, 0, NULL)
+        || -1 != TreeGetNthPostorder(usedTree, -1, &foundVal) || -1 != TreeGetNthPostorder(usedTree, 13, &foundVal))
+    {
+        printf("TreeGetNthPostorder failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
-    printf("Tree: ");
+    //Test the node removal #1
+    retVal = TreeRemove(usedTree, 8);
+    if (0 != retVal)
+    {
+        printf("TreeRemove failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
     for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
@@ -171,54 +348,125 @@ int TestTree()
             retVal = -1;
             goto cleanup;
         }
-        printf("%d ", foundVal);
+        if (foundVal != firstdelete[i])
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
     }
-    printf("\n");
 
-    //End Structure Test
-    /*retVal = TreeInsert(usedTree, 20);
-    if (0 != retVal)
+    //Get count, height and see if it contains #5
+    if (11 != TreeGetCount(usedTree))
     {
-        printf("TreeInsert failed!\n");
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
-
-    if (1 != TreeContains(usedTree, 20))
+    if (3 != TreeGetHeight(usedTree))
     {
-        printf("TreeContains invalid return value!\n");
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeContains(usedTree, 8))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = TreeRemove(usedTree, 20);
+    //Test the node removal #2
+    retVal = TreeRemove(usedTree, 22);
     if (0 != retVal)
     {
-        printf("TreeRemove failed!\n");
+        printf("TreeRemove failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (0 != TreeContains(usedTree, 20))
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
-        printf("TreeContains invalid return value after remove!\n");
+        if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+        if (foundVal != seconddelete[i])
+        {
+            printf("TreeGetNthPreorder failed!: line: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
+
+    //Get count, height and see if it contains #6
+    if (10 != TreeGetCount(usedTree))
+    {
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (3 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeContains(usedTree, 22))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
+    //END STRUCTURE TEST
+
+    // TreeClear Test #1
+    retVal = TreeClear(usedTree);
+    if (0 != retVal)
+    {
+        printf("TreeClear failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    //Get count, height and see if it contains #7
     if (0 != TreeGetCount(usedTree))
     {
-        printf("TreeGetCount invalid return value!\n");
+        printf("TreeGetCount invalid return value: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
-    }*/
+    }
+    if (-1 != TreeGetHeight(usedTree))
+    {
+        printf("TreeGetHeight invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != TreeContains(usedTree, 43))
+    {
+        printf("TreeContains invalid return value: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
 
 cleanup:
+    if (-1 != TreeDestroy(NULL))
+    {
+        printf("TreeDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
     if (NULL != usedTree)
     {
         if (0 != TreeDestroy(&usedTree))
         {
-            printf("TreeDestroy failed!\n");
+            printf("TreeDestroy failed!: line: %d\n", __LINE__);
             retVal = -1;
         }
+    }
+    if (NULL != usedTree)
+    {
+        printf("TreeDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
     }
     return retVal;
 }
