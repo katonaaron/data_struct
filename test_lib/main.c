@@ -620,113 +620,348 @@ int TestStack()
     int foundVal = -1;
     CC_STACK* usedStack = NULL, *usedStack2 = NULL;
 
+    //Test StCreate
     retVal = StCreate(&usedStack);
     if (0 != retVal)
     {
-        printf("StCreate failed!\n");
+        printf("StCreate failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
-
-    retVal = StPush(usedStack, 10);
-    if (0 != retVal)
+    if (-1 != StCreate(NULL))
     {
-        printf("StPush failed!\n");
-        goto cleanup;
-    }
-
-    if (0 != StIsEmpty(usedStack))
-    {
-        printf("Invalid answer to StIsEmpty!\n");
+        printf("StCreate failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
+    //StGetCount and StIsEmpty test #1
+    if (0 != StGetCount(usedStack))
+    {
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != StIsEmpty(usedStack))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StPush test
+    int values[] = { 10, 22, 31, 1, 2, 5, 21, 11, 14, 12};
+    for (int i = 0; i < 10; i++)
+    {
+        retVal = StPush(usedStack, values[i]);
+        if (0 != retVal)
+        {
+            printf("StPush failed!: %d\n", __LINE__);
+            goto cleanup;
+        }
+    }    
+    if (-1 != StPush(NULL, 10))
+    {
+        printf("StPush failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StGetCount and StIsEmpty test #2
+    if (10 != StGetCount(usedStack))
+    {
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != StIsEmpty(usedStack))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StPeek test
+    retVal = StPeek(usedStack, &foundVal);
+    if (0 != retVal)
+    {
+        printf("StPeek failed!: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (foundVal != 12)
+    {
+        printf("Invalid value after peek!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != StPeek(NULL, &foundVal) || -1 != StPeek(usedStack, NULL))
+    {
+        printf("StPeek failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StGetCount and StIsEmpty test #3
+    if (10 != StGetCount(usedStack))
+    {
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != StIsEmpty(usedStack))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StPop test
     retVal = StPop(usedStack, &foundVal);
     if (0 != retVal)
     {
-        printf("StPop failed!\n");
+        printf("StPop failed!: %d\n", __LINE__);
         goto cleanup;
     }
-
-    if (foundVal != 10)
+    if (foundVal != 12)
     {
-        printf("Invalid value after pop!\n");
+        printf("Invalid value after pop!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (-1 != StPop(NULL, &foundVal) || -1 != StPop(usedStack, NULL))
+    {
+        printf("StPop failed!: line: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
-    retVal = StPush(usedStack, 10);
-    if (0 != retVal)
+
+    //StGetCount and StIsEmpty test #4
+    if (9 != StGetCount(usedStack))
     {
-        printf("StPush failed!\n");
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
-    retVal = StPush(usedStack, 20);
-    if (0 != retVal)
+    if (0 != StIsEmpty(usedStack))
     {
-        printf("StPush failed!\n");
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
+
+    //StClear test
+    retVal = StClear(usedStack);
+    if (0 != retVal)
+    {
+        printf("StClear failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != StClear(NULL))
+    {
+        printf("StClear failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StGetCount and StIsEmpty test #5
+    if (0 != StGetCount(usedStack))
+    {
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (1 != StIsEmpty(usedStack))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StClear test #2 - clear empty vector
+    if (0 != StClear(usedStack))
+    {
+        printf("StClear failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StPop test #2 - pop from empty vector
+    retVal = StPop(usedStack, &foundVal);
+    if (-1 != retVal)
+    {
+        printf("StPop failed!: %d\n", __LINE__);
+        goto cleanup;
+    }
+    
+    //StPeek test #2 - peek from empty vector
+    retVal = StPeek(usedStack, &foundVal);
+    if (-1 != retVal)
+    {
+        printf("StPeek failed!: %d\n", __LINE__);
+        goto cleanup;
+    }
+
+    //StIsEmpty test
+    if (-1 != StIsEmpty(NULL))
+    {
+        printf("StIsEmpty failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //StGetCount test
+    if (-1 != StGetCount(NULL))
+    {
+        printf("StGetCount failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    //Insert values to test StPushStack
     retVal = StCreate(&usedStack2);
     if (0 != retVal)
     {
-        printf("StCreate failed!\n");
-        goto cleanup;
-    }
-    retVal = StPush(usedStack2, 30);
-    if (0 != retVal)
-    {
-        printf("StPush failed!\n");
-        goto cleanup;
-    }
-    retVal = StPush(usedStack2, 40);
-    if (0 != retVal)
-    {
-        printf("StPush failed!\n");
+        printf("StCreate failed!: line: %d\n", __LINE__);
         goto cleanup;
     }
 
-    if (2 != StGetCount(usedStack))
+
+    int values2[] = { 1, 2, 3, 1, 4, 5 };
+
+    for (int i = 0; i < 3; i++)
     {
-        printf("StGetCount failed!\n");
+        retVal = StPush(usedStack, values2[i]);
+        if (0 != retVal)
+        {
+            printf("StPush failed!: %d\n", __LINE__);
+            goto cleanup;
+        }
+    }
+
+    for (int i = 3; i < 6; i++)
+    {
+        retVal = StPush(usedStack2, values2[i]);
+        if (0 != retVal)
+        {
+            printf("StPush failed!: %d\n", __LINE__);
+            goto cleanup;
+        }
+    }
+
+    //StGetCount and StIsEmpty test #6
+    if (3 != StGetCount(usedStack) || 3 != StGetCount(usedStack2))
+    {
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != StIsEmpty(usedStack) || 0 != StIsEmpty(usedStack2))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
         retVal = -1;
         goto cleanup;
     }
 
+    //StPushStack test
     StPushStack(usedStack, usedStack2);
 
-    printf("Stack1: ");
-    while (!StIsEmpty(usedStack))
+    //StGetCount and StIsEmpty test #7
+    if (6 != StGetCount(usedStack) || 0 != StGetCount(usedStack2))
     {
-        retVal = StPop(usedStack, &foundVal);
+        printf("StGetCount failed!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+    if (0 != StIsEmpty(usedStack) || 1 != StIsEmpty(usedStack2))
+    {
+        printf("Invalid answer to StIsEmpty!: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
+
+    /*Printing out the values of the 2 stacks
+    printf("Stack1: ");
+    int vectorSize = VecGetCount(usedStack->Items);
+    if (vectorSize < 0)
+    {
+        return -1;
+    }
+    for (int i = 0; i < vectorSize; i++)
+    {
+        retVal = VecGetValueByIndex(usedStack->Items, i, &foundVal);
         if (0 != retVal)
         {
-            printf("StPop failed!\n");
+            printf("VecGetValueByIndex failed!: %d\n", __LINE__);
             goto cleanup;
         }
         printf("%d ", foundVal);
     }
     printf("\nStack2: ");
-    while (!StIsEmpty(usedStack2))
+    vectorSize = VecGetCount(usedStack2->Items);
+    if (vectorSize < 0)
     {
-        retVal = StPop(usedStack2, &foundVal);
+        return -1;
+    }
+    for (int i = 0; i < vectorSize; i++)
+    {
+        retVal = VecGetValueByIndex(usedStack2->Items, i, &foundVal);
         if (0 != retVal)
         {
-            printf("StPop failed!\n");
+            printf("VecGetValueByIndex failed!: %d\n", __LINE__);
             goto cleanup;
         }
         printf("%d ", foundVal);
     }
-    printf("\n");
+    printf("\n");*/
+
+    //Check the values
+    for (int i = 5; i >= 0; i--)
+    {
+        retVal = StPop(usedStack, &foundVal);
+        if (0 != retVal)
+        {
+            printf("StPop failed!: %d\n", __LINE__);
+            goto cleanup;
+        }
+        if (foundVal != values2[i])
+        {
+            printf("Invalid value after pop!: %d\n", __LINE__);
+            retVal = -1;
+            goto cleanup;
+        }
+    }
 
 cleanup:
+    if (-1 != StDestroy(NULL))
+    {
+        printf("StDestroy failed!: %d\n", __LINE__);
+        retVal = -1;
+    }
     if (NULL != usedStack)
     {
         if (0 != StDestroy(&usedStack))
         {
-            printf("StDestroy failed!\n");
+            printf("StDestroy failed!: %d\n", __LINE__);
             retVal = -1;
         }
+    }
+    if (NULL != usedStack2)
+    {
+        if (0 != StDestroy(&usedStack2))
+        {
+            printf("StDestroy failed!: %d\n", __LINE__);
+            retVal = -1;
+        }
+    }
+    if (-1 != StDestroy(&usedStack))
+    {
+        printf("StDestroy failed!: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (-1 != StDestroy(&usedStack2))
+    {
+        printf("StDestroy failed!: %d\n", __LINE__);
+        retVal = -1;
     }
     return retVal;
 }
