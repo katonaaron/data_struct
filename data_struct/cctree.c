@@ -234,7 +234,7 @@ int TreeClear(CC_TREE *Tree)
 
 int TreeGetNthPreorder(CC_TREE *Tree, int Index, int *Value)
 {
-    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    if (NULL == Tree || NULL == Value || Index < 0 || Index >= Tree->Count)
     {
         return -1;
     }   
@@ -243,7 +243,7 @@ int TreeGetNthPreorder(CC_TREE *Tree, int Index, int *Value)
 
 int TreeGetNthInorder(CC_TREE *Tree, int Index, int *Value)
 {
-    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    if (NULL == Tree || NULL == Value || Index < 0 || Index >= Tree->Count)
     {
         return -1;
     }
@@ -252,7 +252,7 @@ int TreeGetNthInorder(CC_TREE *Tree, int Index, int *Value)
 
 int TreeGetNthPostorder(CC_TREE *Tree, int Index, int *Value)
 {
-    if (NULL == Tree || NULL == Value || Index < 1 || Index > Tree->Count)
+    if (NULL == Tree || NULL == Value || Index < 0 || Index >= Tree->Count)
     {
         return -1;
     }
@@ -597,19 +597,20 @@ static int TreeNodeGetNthPreorder(CC_TREE_NODE *Node, int *Index, int *Value)
         return -1;
     }
 
-    (*Index)--;
-    if (!(*Index))
+    if (!(*Index)--)
     {
         *Value = Node->Value;
     }
-    if (*Index && NULL != Node->Left)
+
+    if (*Index >= 0 && NULL != Node->Left)
     {
         if (0 != TreeNodeGetNthPreorder(Node->Left, Index, Value))
         {
             return -1;
         }
     }
-    if (*Index && NULL != Node->Right)
+
+    if (*Index >= 0 && NULL != Node->Right)
     {
         if (0 != TreeNodeGetNthPreorder(Node->Right, Index, Value))
         {
@@ -626,7 +627,7 @@ static int TreeNodeGetNthInorder(CC_TREE_NODE *Node, int *Index, int *Value)
         return -1;
     }
 
-    if (*Index && NULL != Node->Left)
+    if (*Index >= 0 && NULL != Node->Left)
     {
         if (0 != TreeNodeGetNthInorder(Node->Left, Index, Value))
         {
@@ -634,13 +635,12 @@ static int TreeNodeGetNthInorder(CC_TREE_NODE *Node, int *Index, int *Value)
         }
     }
 
-    (*Index)--;
-    if (!(*Index))
+    if (!(*Index)--)
     {
         *Value = Node->Value;
     }
 
-    if (*Index && NULL != Node->Right)
+    if (*Index >= 0 && NULL != Node->Right)
     {
         if (0 != TreeNodeGetNthInorder(Node->Right, Index, Value))
         {
@@ -657,7 +657,7 @@ static int TreeNodeGetNthPostorder(CC_TREE_NODE *Node, int *Index, int *Value)
         return -1;
     }
 
-    if (*Index && NULL != Node->Left)
+    if (*Index >= 0 && NULL != Node->Left)
     {
         if (0 != TreeNodeGetNthPostorder(Node->Left, Index, Value))
         {
@@ -665,7 +665,7 @@ static int TreeNodeGetNthPostorder(CC_TREE_NODE *Node, int *Index, int *Value)
         }
     }
 
-    if (*Index && NULL != Node->Right)
+    if (*Index >= 0 && NULL != Node->Right)
     {
         if (0 != TreeNodeGetNthPostorder(Node->Right, Index, Value))
         {
@@ -673,8 +673,7 @@ static int TreeNodeGetNthPostorder(CC_TREE_NODE *Node, int *Index, int *Value)
         }
     }
 
-    (*Index)--;
-    if (!(*Index))
+    if (!(*Index)--)
     {
         *Value = Node->Value;
     }

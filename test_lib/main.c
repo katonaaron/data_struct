@@ -90,10 +90,17 @@ int TestTree()
     int foundVal;
     CC_TREE* usedTree = NULL;
 
+    //TreeCreate Test
     retVal = TreeCreate(&usedTree);
     if (0 != retVal)
     {
-        printf("TreeCreate failed!\n");
+        printf("TreeCreate failed!: line: %d\n", __LINE__);
+        goto cleanup;
+    }
+    if (-1 != TreeCreate(NULL))
+    {
+        printf("TreeCreate failed!: line: %d\n", __LINE__);
+        retVal = -1;
         goto cleanup;
     }
 
@@ -112,7 +119,7 @@ int TestTree()
     }
 
     printf("Preorder: ");
-    for (int i = 1; i <= TreeGetCount(usedTree); i++)
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
         {
@@ -124,7 +131,7 @@ int TestTree()
     }
     printf("\n");
     printf("Inorder: ");
-    for (int i = 1; i <= TreeGetCount(usedTree); i++)
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthInorder(usedTree, i, &foundVal))
         {
@@ -136,7 +143,7 @@ int TestTree()
     }
     printf("\n");
     printf("Postorder: ");
-    for (int i = 1; i <= TreeGetCount(usedTree); i++)
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthPostorder(usedTree, i, &foundVal))
         {
@@ -156,7 +163,7 @@ int TestTree()
     }
 
     printf("Tree: ");
-    for (int i = 1; i <= TreeGetCount(usedTree); i++)
+    for (int i = 0; i < TreeGetCount(usedTree); i++)
     {
         if (0 != TreeGetNthPreorder(usedTree, i, &foundVal))
         {
