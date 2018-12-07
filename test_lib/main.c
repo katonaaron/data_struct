@@ -592,7 +592,7 @@ int TestStack()
 {
     int retVal = -1;
     int foundVal = -1;
-    CC_STACK* usedStack = NULL;
+    CC_STACK* usedStack = NULL, *usedStack2 = NULL;
 
     retVal = StCreate(&usedStack);
     if (0 != retVal)
@@ -608,7 +608,7 @@ int TestStack()
         goto cleanup;
     }
 
-    if (1 != StIsEmpty(usedStack))
+    if (0 != StIsEmpty(usedStack))
     {
         printf("Invalid answer to StIsEmpty!\n");
         retVal = -1;
@@ -628,6 +628,70 @@ int TestStack()
         retVal = -1;
         goto cleanup;
     }
+
+    retVal = StPush(usedStack, 10);
+    if (0 != retVal)
+    {
+        printf("StPush failed!\n");
+        goto cleanup;
+    }
+    retVal = StPush(usedStack, 20);
+    if (0 != retVal)
+    {
+        printf("StPush failed!\n");
+        goto cleanup;
+    }
+    retVal = StCreate(&usedStack2);
+    if (0 != retVal)
+    {
+        printf("StCreate failed!\n");
+        goto cleanup;
+    }
+    retVal = StPush(usedStack2, 30);
+    if (0 != retVal)
+    {
+        printf("StPush failed!\n");
+        goto cleanup;
+    }
+    retVal = StPush(usedStack2, 40);
+    if (0 != retVal)
+    {
+        printf("StPush failed!\n");
+        goto cleanup;
+    }
+
+    if (2 != StGetCount(usedStack))
+    {
+        printf("StGetCount failed!\n");
+        retVal = -1;
+        goto cleanup;
+    }
+
+    StPushStack(usedStack, usedStack2);
+
+    printf("Stack1: ");
+    while (!StIsEmpty(usedStack))
+    {
+        retVal = StPop(usedStack, &foundVal);
+        if (0 != retVal)
+        {
+            printf("StPop failed!\n");
+            goto cleanup;
+        }
+        printf("%d ", foundVal);
+    }
+    printf("\nStack2: ");
+    while (!StIsEmpty(usedStack2))
+    {
+        retVal = StPop(usedStack2, &foundVal);
+        if (0 != retVal)
+        {
+            printf("StPop failed!\n");
+            goto cleanup;
+        }
+        printf("%d ", foundVal);
+    }
+    printf("\n");
 
 cleanup:
     if (NULL != usedStack)
