@@ -55,7 +55,7 @@ int StPush(CC_STACK *Stack, int Value)
 
 int StPop(CC_STACK *Stack, int *Value)
 {
-    if (NULL == Stack)
+    if (NULL == Stack || NULL == Value)
     {
         return - 1;
     }
@@ -63,7 +63,7 @@ int StPop(CC_STACK *Stack, int *Value)
     int foundVal;
     int index = VecGetCount(Stack->Items);
 
-    if (index < 0)
+    if (index < 1)
     {
         return -1;
     }
@@ -92,7 +92,7 @@ int StPeek(CC_STACK *Stack, int *Value)
     int foundVal;
     int index = VecGetCount(Stack->Items);
 
-    if (index < 0)
+    if (index < 1)
     {
         return -1;
     }
@@ -145,26 +145,25 @@ int StPushStack(CC_STACK *Stack, CC_STACK *StackToPush)
         return -1;
     }
 
-    int top;
-    int isEmpty = StIsEmpty(StackToPush);
+    int foundValue;
+    int vectorSize = VecGetCount(StackToPush->Items);
 
-    while (0 == isEmpty)
-    {
-        if (0 != StPop(StackToPush, &top))
-        {
-            return -1;
-        }
-        if (0 != StPush(Stack, top))
-        {
-            return -1;
-        }
-        isEmpty = StIsEmpty(StackToPush);
-    }
-
-    if (isEmpty < 0)
+    if (vectorSize < 0)
     {
         return -1;
     }
 
-    return 0;
+    for(int i=0; i<vectorSize; i++)
+    {
+        if (0 != VecGetValueByIndex(StackToPush->Items, i, &foundValue))
+        {
+            return -1;
+        }
+        if (0 != StPush(Stack, foundValue))
+        {
+            return -1;
+        }
+    }
+
+    return VecClear(StackToPush->Items);
 }
