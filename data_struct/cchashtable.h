@@ -1,7 +1,7 @@
 #pragma once
 
 //The hash table is implemented as a dynamic array made of pairs of keys and values.
-//Quadratic Probing is used. The elements of the array have the following property: 
+//Linear Probing is used. The elements of the array have the following property: 
 //  if(NULL == Key)
 //      if(0 == Value)
 //          empty slot
