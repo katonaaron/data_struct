@@ -181,6 +181,11 @@ int TreeContains(CC_TREE *Tree, int Value)
         return -1;
     }
 
+    if (NULL == Tree->Root)
+    {
+        return 0;
+    }
+
     PCC_TREE_NODE node = NULL;
     if (0 != TreeFindNode(Tree->Root, Value, &node))
     {
@@ -207,7 +212,7 @@ int TreeGetCount(CC_TREE *Tree)
 
 int TreeGetHeight(CC_TREE *Tree)
 {
-    if (NULL == Tree)
+    if (NULL == Tree || NULL == Tree->Root)
     {
         return -1;
     }
@@ -384,9 +389,15 @@ static int TreeRemoveNode(CC_TREE *Tree, CC_TREE_NODE *Node)
 
 static int TreeFindNode(CC_TREE_NODE *Root, int Value, CC_TREE_NODE ** Node)
 {
-    if (NULL == Root || NULL == Node)
+    if (NULL == Node)
     {
         return -1;
+    }
+
+    if (NULL == Root)
+    {
+        *Node = NULL;
+        return 0;
     }
 
     if (Root->Value > Value)
