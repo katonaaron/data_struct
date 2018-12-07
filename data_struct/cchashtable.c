@@ -65,7 +65,7 @@ int HtDestroy(CC_HASH_TABLE** HashTable)
         return -1;
     }
 
-    if (-1 == HtClear(*HashTable))
+    if (0 != HtClear(*HashTable))
     {
         return -1;
     }
@@ -138,7 +138,7 @@ int HtSetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int Value)
 
 int HtGetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int *Value)
 {
-    if (NULL == HashTable || NULL == Key)
+    if (NULL == HashTable || NULL == Key || NULL == Value || NULL == HashTable->Data || 0 == HashTable->Size || 0 == HashTable->Count)
     {
         return -1;
     }
@@ -160,7 +160,7 @@ int HtGetKeyValue(CC_HASH_TABLE* HashTable, char* Key, int *Value)
 
 int HtRemoveKey(CC_HASH_TABLE* HashTable, char* Key)
 {
-    if (NULL == HashTable || NULL == Key)
+    if (NULL == HashTable || NULL == Key || NULL == HashTable->Data || 0 == HashTable->Size || 0 == HashTable->Count)
     {
         return -1;
     }
@@ -198,6 +198,11 @@ int HtHasKey(CC_HASH_TABLE* HashTable, char* Key)
         return -1;
     }
 
+    if (NULL == HashTable->Data || 0 == HashTable->Size || 0 == HashTable->Count)
+    {
+        return 0;
+    }
+
     int hash = HtHash(Key);
     int index = hash % HashTable->Size;
 
@@ -214,14 +219,14 @@ int HtHasKey(CC_HASH_TABLE* HashTable, char* Key)
 
 int HtGetNthKey(CC_HASH_TABLE* HashTable, int Index, char** Key)
 {
-    if (NULL == HashTable || NULL == Key || Index < 1 || Index > HashTable->Count)
+    if (NULL == HashTable || NULL == Key || Index < 0 || Index >= HashTable->Count)
     {
         return -1;
     }
 
     int index = 0, count = 0;
 
-    while(count < Index)
+    while(count <= Index)
     {
         if (NULL != HashTable->Data[index++].Key)
         {
@@ -241,9 +246,12 @@ int HtClear(CC_HASH_TABLE* HashTable)
         return -1;
     }
 
-    if (0 != HtDestroyData(&HashTable->Data, HashTable->Size, HashTable->Count))
+    if (NULL != HashTable->Data)
     {
-        return -1;
+        if (0 != HtDestroyData(&HashTable->Data, HashTable->Size, HashTable->Count))
+        {
+            return -1;
+        }
     }
 
     HashTable->Size = 0;
@@ -288,30 +296,30 @@ static int HtResize(CC_HASH_TABLE *HashTable, int Up)
         }
     }
 
-    PCC_HASH_TABLE_DATA data = (PCC_HASH_TABLE_DATA)calloc(newSize, sizeof(CC_HASH_TABLE_DATA)), dataOld;
+    PCC_HASH_TABLE_DATA data = (PCC_HASH_TABLE_DATA)calloc(newSize, sizeof(CC_HASH_TABLE_DATA));
 
     if (NULL == data)
     {
         return -1;
     }
 
-    dataOld = HashTable->Data;
+    PCC_HASH_TABLE_DATA oldData = HashTable->Data;
     HashTable->Data = data;
 
-    int count = 0, nrOfElements = HashTable->Count, oldSize = HashTable->Size;
+    int count = 0, oldCount = HashTable->Count, oldSize = HashTable->Size;
 
     HashTable->Count = 0;
     HashTable->Size = newSize;
 
-    for (int i = 0; count < nrOfElements; i++)
+    for (int i = 0; count < oldCount; i++)
     {
-        if (NULL != dataOld[i].Key)
+        if (NULL != oldData[i].Key)
         {
-            if (0 != HtSetKeyValue(HashTable, dataOld[i].Key, dataOld[i].Value))
+            if (0 != HtSetKeyValue(HashTable, oldData[i].Key, oldData[i].Value))
             {
                 free(data);
-                HashTable->Data = dataOld;
-                HashTable->Count = nrOfElements;
+                HashTable->Data = oldData;
+                HashTable->Count = oldCount;
                 HashTable->Size = oldSize;
                 return -1;
             }
@@ -319,10 +327,10 @@ static int HtResize(CC_HASH_TABLE *HashTable, int Up)
         }
     }    
 
-    return HtDestroyData(&dataOld, oldSize, nrOfElements);
+    return HtDestroyData(&oldData, oldSize, oldCount);
 }
 
-int HtDestroyData(CC_HASH_TABLE_DATA ** Data, int Size, int Count)
+static int HtDestroyData(CC_HASH_TABLE_DATA ** Data, int Size, int Count)
 {
     if (NULL == Data || Size < 0 || Count < 0 || Count > Size)
     {
@@ -437,7 +445,7 @@ static int HtIsPrime(int Number)
     return 1;
 }
 
-int HtNextPrime(int Number)
+static int HtNextPrime(int Number)
 {
     while (!HtIsPrime(Number))
     {
