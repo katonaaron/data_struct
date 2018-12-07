@@ -1,9 +1,20 @@
 #pragma once
 
+//This data structure implements an AVL tree
+
+
+//Node of the tree
+typedef struct _CC_TREE_NODE {
+    struct _CC_TREE_NODE *Parent, *Left, *Right;
+    int Value;
+    int Height;
+} CC_TREE_NODE, *PCC_TREE_NODE;
+
 typedef struct _CC_TREE {
     // Members
-    int PlaceHolder; // placeholder to be removed when actual implementation is added
-} CC_TREE;
+    PCC_TREE_NODE Root;
+    int Count;
+} CC_TREE, *PCC_TREE;
 
 int TreeCreate(CC_TREE **Tree);
 int TreeDestroy(CC_TREE **Tree);
