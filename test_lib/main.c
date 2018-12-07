@@ -1,3 +1,5 @@
+#define _CRTDBG_MAP_ALLOC  
+#include <crtdbg.h>  
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +19,15 @@ void RunTests();
 
 int main(void)
 {
+    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_WARN, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ERROR, _CRTDBG_FILE_STDOUT);
+    _CrtSetReportMode(_CRT_ASSERT, _CRTDBG_MODE_FILE);
+    _CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDOUT);
     RunTests();
+    _CrtDumpMemoryLeaks();
     return 0;
 }
 
@@ -532,6 +542,22 @@ cleanup:
             retVal = -1;
         }
     }
+    if (0 != VecDestroy(&minVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != VecDestroy(&maxVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+    if (0 != VecDestroy(&sortedVector))
+    {
+        printf("VecDestroy failed!: line: %d\n", __LINE__);
+        retVal = -1;
+    }
+
     return retVal;
 }
 
