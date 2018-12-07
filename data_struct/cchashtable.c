@@ -1,6 +1,5 @@
 #include "cchashtable.h"
 #include "common.h"
-#include <limits.h>
 
 
 //VecResize increments or decrements the size of the dynamically allocated array
@@ -367,7 +366,7 @@ static int HtHash(char *Key)
 
     if (hash < 0)
     {
-        hash += INT_MAX;
+        return -hash;
     }
 
     return hash;
