@@ -117,7 +117,7 @@ int HpRemove(CC_HEAP *Heap, int Value)
 
     int vectorSize = VecGetCount(vector), element;
 
-    if (vectorSize < 0)
+    if (vectorSize <= 0)
     {
         return -1;
     }

@@ -477,7 +477,15 @@ int TestHeap()
 {
     int retVal = -1;
     int foundVal = -1;
-    CC_HEAP* minHeap = NULL, *maxHeap = NULL, *usedHeap = NULL;;
+    CC_HEAP* minHeap = NULL, *maxHeap = NULL, *usedHeap = NULL;
+    PCC_VECTOR minVector, maxVector;
+
+    if (0 != VecCreate(&minVector) || 0 != VecCreate(&maxVector))
+    {
+        printf("VecCreate failed!: line: %d\n", __LINE__);
+        retVal = -1;
+        goto cleanup;
+    }
 
     //Test HpCreateMinHeap
     retVal = HpCreateMinHeap(&minHeap, NULL);
@@ -492,7 +500,7 @@ int TestHeap()
         retVal = -1;
         goto cleanup;
     }
-
+    
     //Test HpCreateMaxHeap
     retVal = HpCreateMaxHeap(&maxHeap, NULL);
     if (0 != retVal)
@@ -647,9 +655,6 @@ int TestHeap()
     }
 
     //Test structure
-    PCC_VECTOR minVector, maxVector;
-    VecCreate(&minVector);
-    VecCreate(&maxVector);
     VecInsertTail(minVector, 1);
     VecInsertTail(minVector, 6);
     VecInsertTail(minVector, 2);
